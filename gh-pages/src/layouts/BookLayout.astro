@@ -1,0 +1,80 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import "../styles/book.css";
+
+export interface Props {
+  title: string;
+  slug: string;
+}
+
+const { title, slug } = Astro.props;
+const base = import.meta.env.BASE_URL;
+
+const all = await getCollection("chapters");
+all.sort((a, b) => a.data.order - b.data.order);
+
+const partIntros = all.filter((c) => c.data.kind === "part");
+const parts = partIntros.map((intro) => ({
+  number: intro.data.partNumber!,
+  title: intro.data.title,
+  slug: intro.id.replace(/\.md$/, ""),
+}));
+
+const idx = all.findIndex((c) => c.id.replace(/\.md$/, "") === slug);
+const prev = idx > 0 ? all[idx - 1] : null;
+const next = idx < all.length - 1 ? all[idx + 1] : null;
+
+function slugOf(entry: CollectionEntry<"chapters">): string {
+  return entry.id.replace(/\.md$/, "");
+}
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · llox</title>
+  </head>
+  <body>
+    <nav class="narrow">
+      <a href={`${base}`}><strong>llox</strong></a>
+      {prev ? <a href={`${base}${slugOf(prev)}`} class="prev">←</a> : <span></span>}
+      {next ? <a href={`${base}${slugOf(next)}`} class="next">→</a> : <span></span>}
+    </nav>
+
+    <div class="page">
+      <div class="nav-wrapper">
+        <nav class="floating">
+          <a href={`${base}`}><strong class="logotype">llox</strong></a>
+          <h2>Table of Contents</h2>
+          <ul>
+            {
+              parts.map((p) => (
+                <li>
+                  <a href={`${base}${p.slug}`} class:list={{ active: slug === p.slug }}>
+                    <small>{p.number}</small>{p.title}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+
+      <article>
+        <slot />
+
+        <footer>
+          {
+            next && (
+              <a href={`${base}${slugOf(next)}`} class="next">
+                Next: "{next.data.title}" &rarr;
+              </a>
+            )
+          }
+          Handcrafted for llox
+        </footer>
+      </article>
+    </div>
+  </body>
+</html>

@@ -1,13 +1,63 @@
 ---
+import { getCollection } from "astro:content";
+import BookLayout from "../layouts/BookLayout.astro";
+
+const all = await getCollection("chapters");
+all.sort((a, b) => a.data.order - b.data.order);
+
+const backmatter = all.filter((c) => c.data.kind === "backmatter");
+const partIntros = all.filter((c) => c.data.kind === "part");
+const parts = partIntros.map((intro) => ({
+  number: intro.data.partNumber!,
+  title: intro.data.title,
+  slug: intro.id.replace(/\.md$/, ""),
+  chapters: all.filter(
+    (c) => c.data.kind === "chapter" && c.data.part === intro.data.partNumber
+  ),
+}));
+
+const base = import.meta.env.BASE_URL;
+function slugOf(e: { id: string }): string {
+  return e.id.replace(/\.md$/, "");
+}
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>llox</title>
-  </head>
-  <body>
-    <h1>llox</h1>
-  </body>
-</html>
+<BookLayout title="Table of Contents" slug="index">
+  <h1 class="part">Table of Contents</h1>
+
+  <div class="chapters">
+    <div class="row">
+      <div class="first">
+        {parts.slice(0, 2).map((part) => (
+          <>
+            <h2><span class="num">{part.number}.</span><a href={`${base}${part.slug}`}>{part.title}</a></h2>
+            <ul>
+              {part.chapters.map((ch) => (
+                <li><span class="num">{ch.data.number}.</span><a href={`${base}${slugOf(ch)}`}>{ch.data.title}</a></li>
+              ))}
+            </ul>
+          </>
+        ))}
+      </div>
+      <div class="second">
+        {parts.slice(2).map((part) => (
+          <>
+            <h2><span class="num">{part.number}.</span><a href={`${base}${part.slug}`}>{part.title}</a></h2>
+            <ul>
+              {part.chapters.map((ch) => (
+                <li><span class="num">{ch.data.number}.</span><a href={`${base}${slugOf(ch)}`}>{ch.data.title}</a></li>
+              ))}
+            </ul>
+          </>
+        ))}
+
+        <h2><span class="num">&#10087;</span>Backmatter</h2>
+        <ul>
+          {backmatter.map((ch) => (
+            <li><span class="num">A{ch.data.number}.</span><a href={`${base}${slugOf(ch)}`}>{ch.data.title}</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</BookLayout>

@@ -1,0 +1,408 @@
+/* Crafting Interpreters book style */
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&family=Source+Sans+Pro:wght@300;400;600;700&display=swap');
+
+:root {
+  --bg: #fcfcfc;
+  --text: #222;
+  --muted: #888;
+  --border: #ddd;
+  --link: #1487bd;
+  --link-hover: #0f6f9b;
+  --nav-bg: #f8f8f8;
+  --num-color: #999;
+  --part-num-color: hsl(200, 80%, 45%);
+  --accent: hsl(200, 80%, 45%);
+  --construction-bg: #fffbf0;
+  --construction-border: #f0e0a0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+}
+
+/* ===== Layout ===== */
+.page {
+  display: flex;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.nav-wrapper {
+  width: 240px;
+  flex-shrink: 0;
+  margin-right: 40px;
+  position: relative;
+}
+
+article {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ===== Sidebar Nav ===== */
+nav.floating {
+  position: sticky;
+  top: 20px;
+}
+
+nav.floating img,
+nav.floating .logotype {
+  display: block;
+  max-width: 180px;
+  margin-bottom: 24px;
+}
+
+nav.floating h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+nav.floating ul {
+  list-style: none;
+  margin-bottom: 20px;
+}
+
+nav.floating li {
+  margin-bottom: 2px;
+}
+
+nav.floating li a {
+  display: block;
+  padding: 2px 8px;
+  font-size: 15px;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 3px;
+}
+
+nav.floating li a:hover,
+nav.floating li a.active {
+  background: #e8f0f8;
+  color: var(--link);
+}
+
+nav.floating li a small {
+  display: inline-block;
+  width: 18px;
+  font-size: 11px;
+  color: var(--part-num-color);
+  font-weight: 600;
+  text-align: right;
+  margin-right: 4px;
+}
+
+/* ===== Typography ===== */
+h1 {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  line-height: 1.3;
+}
+
+h1.part {
+  color: var(--accent);
+}
+
+h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+h2 .num {
+  color: var(--part-num-color);
+  margin-right: 6px;
+  font-weight: 600;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
+}
+
+/* ===== TOC ===== */
+.chapters {
+  margin-top: 8px;
+}
+
+.chapters .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.chapters h2 {
+  margin-top: 24px;
+  margin-bottom: 6px;
+  font-size: 18px;
+}
+
+.chapters h2 a {
+  color: var(--text);
+}
+
+.chapters h2 a:hover {
+  color: var(--link);
+}
+
+.chapters ul {
+  list-style: none;
+  margin-bottom: 20px;
+}
+
+.chapters li {
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.chapters li .num {
+  display: inline-block;
+  width: 24px;
+  color: var(--num-color);
+  font-size: 13px;
+  text-align: right;
+  margin-right: 4px;
+}
+
+.chapters .first, .chapters .second {
+  min-width: 0;
+}
+
+/* ===== Under Construction ===== */
+.construction-notice {
+  background: var(--construction-bg);
+  border: 1px solid var(--construction-border);
+  border-radius: 6px;
+  padding: 24px 32px;
+  text-align: center;
+  color: #8a7440;
+  font-size: 16px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+.construction-notice .icon {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* ===== Part intro page ===== */
+.part-intro {
+  margin-top: 16px;
+}
+
+.part-intro h1 {
+  color: var(--accent);
+}
+
+.part-intro ol {
+  list-style: none;
+  counter-reset: chapter;
+  margin-left: 0;
+}
+
+.part-intro ol li {
+  counter-increment: chapter;
+  padding: 4px 0;
+}
+
+.part-intro ol li::before {
+  content: counter(chapter) ".";
+  display: inline-block;
+  width: 28px;
+  color: var(--num-color);
+  text-align: right;
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.part-intro ol li a {
+  font-size: 16px;
+}
+
+/* ===== Footer ===== */
+footer {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--muted);
+}
+
+footer a.next {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* ===== Narrow (mobile) nav ===== */
+nav.narrow {
+  display: none;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--nav-bg);
+  align-items: center;
+  justify-content: space-between;
+}
+
+nav.narrow img,
+nav.narrow .logotype {
+  height: 24px;
+}
+
+nav.narrow a {
+  font-size: 14px;
+  color: var(--link);
+}
+
+/* ===== Wide top nav ===== */
+nav.wide {
+  display: block;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--nav-bg);
+}
+
+nav.wide img,
+nav.wide .logotype {
+  height: 28px;
+}
+
+nav.wide .contents {
+  display: none; /* hidden by default, shown in narrow contexts */
+}
+
+/* ===== Chapter content (markdown) ===== */
+.chapter-content h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+.chapter-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 28px;
+  margin-bottom: 8px;
+}
+
+.chapter-content p {
+  margin-bottom: 1em;
+}
+
+.chapter-content ul, .chapter-content ol {
+  margin-bottom: 1em;
+  padding-left: 1.5em;
+}
+
+.chapter-content li {
+  margin-bottom: 4px;
+}
+
+.chapter-content table {
+  border-collapse: collapse;
+  margin-bottom: 1em;
+  width: 100%;
+}
+
+.chapter-content th, .chapter-content td {
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  text-align: left;
+}
+
+.chapter-content th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+
+.chapter-content blockquote {
+  border-left: 4px solid #d0e0f0;
+  margin-bottom: 1em;
+  padding: 8px 16px;
+  background: #f8fafc;
+  color: #555;
+  font-style: italic;
+}
+
+.chapter-content strong {
+  font-weight: 600;
+}
+
+/* ===== Code blocks ===== */
+code {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 14px;
+  background: #f0f0f0;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+pre {
+  background: #f5f5f5;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px;
+  overflow-x: auto;
+  margin-bottom: 1em;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 800px) {
+  .nav-wrapper {
+    display: none;
+  }
+  nav.wide .contents {
+    display: block;
+  }
+  .chapters .row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .page {
+    padding: 20px 16px;
+  }
+}
