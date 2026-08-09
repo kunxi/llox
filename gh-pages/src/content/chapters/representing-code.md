@@ -56,7 +56,32 @@ abstract class Expr {
 
 This is **NOT** supported in C++ unless we use `std::any` to bridge the gap
 which eliminates the static type check in the compile time. The `ExprVisitor`
-only support `void visit(const T&)` which is suitable for object dump, but
-this cannot be used in the code generation. We will explore the
+only support `void visit(const T&)`:
+
+```cpp
+struct ExprVisitor {
+  virtual void visit(const Literal& expr) = 0;
+  ... ...
+};
+
+struct Expr {
+  virtual void accept(ExprVisitor& v) const = 0;
+  virtual ~Expr() = default;
+};
+
+
+struct PrintVisitor : ExprVisitor {
+  std::ostream& os;
+  explicit PrintVisitor(std::ostream& os) : os(os) {}
+
+  void visit(const Unary& expr) override {
+    os << "(" << expr.op.lexeme << " ";
+    expr.right->accept(*this);
+    os << ")";
+  }
+```
+
+This works for object dump, but cannot be used in the code generation.
+We will explore the
 [Visitor Pattern in Modern C++](https://learnmoderncpp.com/2022/11/01/visitor-pattern-in-modern-c/)
 for the codegen.
