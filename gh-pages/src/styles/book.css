@@ -73,40 +73,6 @@ nav.floating h2 {
   margin-bottom: 8px;
 }
 
-nav.floating ul {
-  list-style: none;
-  margin-bottom: 20px;
-}
-
-nav.floating li {
-  margin-bottom: 2px;
-}
-
-nav.floating li a {
-  display: block;
-  padding: 2px 8px;
-  font-size: 15px;
-  color: var(--text);
-  text-decoration: none;
-  border-radius: 3px;
-}
-
-nav.floating li a:hover,
-nav.floating li a.active {
-  background: #e8f0f8;
-  color: var(--link);
-}
-
-nav.floating li a small {
-  display: inline-block;
-  width: 18px;
-  font-size: 11px;
-  color: var(--part-num-color);
-  font-weight: 600;
-  text-align: right;
-  margin-right: 4px;
-}
-
 /* ===== Typography ===== */
 h1 {
   font-size: 32px;
@@ -252,6 +218,109 @@ a:hover {
 
 .part-intro ol li a {
   font-size: 16px;
+}
+
+/* ===== Sidebar accordion tree ===== */
+.toc-tree {
+  list-style: none;
+  margin-bottom: 20px;
+}
+
+.toc-part {
+  margin-bottom: 2px;
+}
+
+.toc-part-row {
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+}
+
+.toc-part-row:hover {
+  background: #e8f0f8;
+}
+
+.toc-part-link {
+  flex: 1;
+  display: block;
+  padding: 2px 4px 2px 8px;
+  font-size: 15px;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 3px 0 0 3px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toc-part-link:hover {
+  color: var(--link);
+}
+
+.toc-part-link.active {
+  font-weight: 600;
+}
+
+.toc-part-link small {
+  display: inline-block;
+  width: 18px;
+  font-size: 11px;
+  color: var(--part-num-color);
+  font-weight: 600;
+  text-align: right;
+  margin-right: 4px;
+}
+
+.toc-part-toggle {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  font-size: 12px;
+  color: var(--num-color);
+  background: none;
+  border: none;
+  border-radius: 0 3px 3px 0;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform 0.15s;
+}
+
+.toc-part-toggle:hover {
+  color: var(--link);
+}
+
+.toc-part-toggle[aria-expanded="true"] {
+  transform: rotate(90deg);
+}
+
+.toc-chapters {
+  list-style: none;
+  padding-left: 22px;
+  margin-bottom: 4px;
+}
+
+.toc-chapters li a {
+  display: block;
+  padding: 2px 8px;
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 3px;
+}
+
+.toc-chapters li a small {
+  display: inline-block;
+  width: 18px;
+  font-size: 11px;
+  color: var(--num-color);
+  text-align: right;
+  margin-right: 4px;
+}
+
+.toc-chapters li a:hover,
+.toc-chapters li a.active {
+  background: #e8f0f8;
+  color: var(--link);
 }
 
 /* ===== Footer ===== */

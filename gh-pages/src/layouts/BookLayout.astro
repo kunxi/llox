@@ -18,7 +18,18 @@ const parts = partIntros.map((intro) => ({
   number: intro.data.partNumber!,
   title: intro.data.title,
   slug: intro.id.replace(/\.md$/, ""),
+  chapters: all.filter(
+    (c) => c.data.kind === "chapter" && c.data.part === intro.data.partNumber
+  ),
 }));
+
+// Determine which part is open for this page
+const currentChapter = all.find((c) => c.id.replace(/\.md$/, "") === slug);
+const openPart = currentChapter?.data.kind === "chapter"
+  ? currentChapter.data.part
+  : currentChapter?.data.kind === "part"
+    ? currentChapter.data.partNumber
+    : null;
 
 const idx = all.findIndex((c) => c.id.replace(/\.md$/, "") === slug);
 const prev = idx > 0 ? all[idx - 1] : null;
@@ -47,13 +58,37 @@ function slugOf(entry: CollectionEntry<"chapters">): string {
         <nav class="floating">
           <a href={`${base}`}><strong class="logotype">llox</strong></a>
           <h2>Table of Contents</h2>
-          <ul>
+          <ul class="toc-tree">
             {
               parts.map((p) => (
-                <li>
-                  <a href={`${base}${p.slug}`} class:list={{ active: slug === p.slug }}>
-                    <small>{p.number}</small>{p.title}
-                  </a>
+                <li class="toc-part" data-part={p.number}>
+                  <div class="toc-part-row">
+                    <a
+                      href={`${base}${p.slug}`}
+                      class:list={{ "toc-part-link": true, active: slug === p.slug }}
+                    >
+                      <small>{p.number}</small>{p.title}
+                    </a>
+                    <button
+                      class="toc-part-toggle"
+                      aria-expanded={openPart === p.number ? "true" : "false"}
+                      aria-label={`Toggle ${p.title}`}
+                    >
+                      ▸
+                    </button>
+                  </div>
+                  <ul class="toc-chapters" hidden={openPart !== p.number}>
+                    {p.chapters.map((ch) => (
+                      <li>
+                        <a
+                          href={`${base}${slugOf(ch)}`}
+                          class:list={{ active: slug === slugOf(ch) }}
+                        >
+                          <small>{ch.data.number}</small>{ch.data.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 </li>
               ))
             }
@@ -76,5 +111,28 @@ function slugOf(entry: CollectionEntry<"chapters">): string {
         </footer>
       </article>
     </div>
+    <script>
+      document.querySelectorAll('.toc-part-toggle').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const part = btn.closest('.toc-part');
+          const ul = part.querySelector('.toc-chapters');
+          const open = btn.getAttribute('aria-expanded') === 'true';
+
+          // Close all others
+          document.querySelectorAll('.toc-part-toggle').forEach((b) =>
+            b.setAttribute('aria-expanded', 'false')
+          );
+          document.querySelectorAll('.toc-chapters').forEach((u) =>
+            u.setAttribute('hidden', '')
+          );
+
+          // Toggle this one
+          if (!open) {
+            btn.setAttribute('aria-expanded', 'true');
+            ul.removeAttribute('hidden');
+          }
+        });
+      });
+    </script>
   </body>
 </html>
