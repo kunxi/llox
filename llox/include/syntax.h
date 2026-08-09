@@ -51,7 +51,7 @@ struct Literal : Expr {
     os << "\n";
   }
 
-  std::variant<bool, double, std::string> value;
+  std::variant<bool, double, nullptr_t, std::string> value;
 };
 
 struct Unary : Expr {

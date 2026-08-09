@@ -47,7 +47,7 @@ std::unique_ptr<Expr> Parser::primary() {
   if (match({TOKEN_TRUE}))
     return std::make_unique<Literal>(true);
   if (match({TOKEN_NIL}))
-    return std::make_unique<Literal>(std::string("nil"));
+    return std::make_unique<Literal>(nullptr);
   if (match({TOKEN_NUMBER, TOKEN_STRING, TOKEN_IDENTIFIER}))
     return std::make_unique<Literal>(previous().lexeme);
 
