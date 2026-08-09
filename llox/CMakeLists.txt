@@ -17,6 +17,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # Target: llox
 set(SOURCES
     src/main.cc
+    src/parser.cc
     ${FLEX_LoxScanner_OUTPUTS}
 )
 add_executable(llox ${SOURCES})

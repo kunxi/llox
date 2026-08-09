@@ -1,18 +1,14 @@
-#include <FlexLexer.h> // Automatically bundled header with your flex installation
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
 #include "lexer.h"
+#include "parser.h"
 
 
 void run(std::istream &stream, std::ostream &out) {
-  FlexLexer *lexer = new yyFlexLexer(&stream);
-  int token;
-  while ((token = lexer->yylex()) != TOKEN_EOF) {
-    out << "Token ID: " << token << " | Matched: [" << lexer->YYText() << "]"
-        << " | Length: " << lexer->YYLeng() << "\n";
-  }
+  Parser parser;
+  parser.parse(stream, out);
 }
 
 void run_file(char *path) {
