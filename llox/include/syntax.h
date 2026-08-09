@@ -116,8 +116,9 @@ struct PrintVisitor : ExprVisitor {
     std::visit([this](const auto& v) {
       if constexpr (std::is_same_v<std::decay_t<decltype(v)>, std::nullptr_t>)
         os << "nil";
-      else if constexpr (std::is_same_v<std::decay_t<decltype(v)>, std::string>)
-        os << v;
+      else if constexpr (std::is_same_v<std::decay_t<decltype(v)>, std::string>) {
+        os << '"' << v << '"';
+      }
       else if constexpr (std::is_same_v<std::decay_t<decltype(v)>, bool>)
         os << (v ? "true" : "false");
       else

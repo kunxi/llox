@@ -81,7 +81,7 @@ struct PrintVisitor : ExprVisitor {
   }
 ```
 
-This works for object dump, but cannot be used in the code generation.
+This works for object dump, see [PR &6](https://github.com/kunxi/llox/pull/6) for more details; but cannot be used in the code generation.
 We will explore the
 [Visitor Pattern in Modern C++](https://learnmoderncpp.com/2022/11/01/visitor-pattern-in-modern-c/)
 for the codegen.

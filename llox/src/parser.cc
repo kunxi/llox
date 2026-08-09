@@ -49,7 +49,14 @@ std::unique_ptr<Expr> Parser::primary() {
     return std::make_unique<Literal>(true);
   if (match({TOKEN_NIL}))
     return std::make_unique<Literal>(nullptr);
-  if (match({TOKEN_NUMBER, TOKEN_STRING, TOKEN_IDENTIFIER}))
+  if (match({TOKEN_NUMBER}))
+    return std::make_unique<Literal>(std::stod(previous().lexeme));
+  if (match({TOKEN_STRING})) {
+    auto lexeme = previous().lexeme;
+    // ponytail: strip surrounding double quotes
+    return std::make_unique<Literal>(lexeme.substr(1, lexeme.size() - 2));
+  }
+  if (match({TOKEN_IDENTIFIER}))
     return std::make_unique<Literal>(previous().lexeme);
 
   if (match({TOKEN_LEFT_PAREN})) {
