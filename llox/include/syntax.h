@@ -1,9 +1,9 @@
 #ifndef SYNTAX_H
 #define SYNTAX_H
 
-#include <variant>
 #include <memory>
 #include <ostream>
+#include <variant>
 
 /*
 
@@ -30,24 +30,23 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
 
 struct Expr {
   virtual ~Expr() = default;
-  virtual void print(std::ostream& os, int indent = 0) const = 0;
+  virtual void print(std::ostream &os, int indent = 0) const = 0;
 
 protected:
-  void indent(std::ostream& os, int depth) const {
+  void indent(std::ostream &os, int depth) const {
     std::string indent(depth * 2, ' ');
     os << indent;
   }
 };
 
 struct Literal : Expr {
-  template<typename T>
-  explicit Literal(T&& val)
-    : value(std::forward<T>(val)) {}
+  template <typename T>
+  explicit Literal(T &&val) : value(std::forward<T>(val)) {}
 
-  void print(std::ostream& os, int n) const override {
+  void print(std::ostream &os, int n) const override {
     indent(os, n);
     os << "literal: ";
-    std::visit([&](auto& v) { os << v; }, value);
+    std::visit([&](auto &v) { os << v; }, value);
     os << "\n";
   }
 
@@ -56,9 +55,9 @@ struct Literal : Expr {
 
 struct Unary : Expr {
   Unary(Token op, std::unique_ptr<Expr> right)
-    : op(op), right(std::move(right)) {}
+      : op(op), right(std::move(right)) {}
 
-  void print(std::ostream& os, int n) const override {
+  void print(std::ostream &os, int n) const override {
     indent(os, n);
     os << "unary: " << op.lexeme << "\n";
     right->print(os, n + 1);
@@ -70,9 +69,9 @@ struct Unary : Expr {
 
 struct Binary : Expr {
   Binary(std::unique_ptr<Expr> left, Token op, std::unique_ptr<Expr> right)
-    : left(std::move(left)), op(op), right(std::move(right)) {}
+      : left(std::move(left)), op(op), right(std::move(right)) {}
 
-  void print(std::ostream& os, int n) const override {
+  void print(std::ostream &os, int n) const override {
     indent(os, n);
     os << "binary: " << op.lexeme << "\n";
     left->print(os, n + 1);
@@ -86,9 +85,9 @@ struct Binary : Expr {
 
 struct Grouping : Expr {
   explicit Grouping(std::unique_ptr<Expr> expression)
-    : expression(std::move(expression)) {}
+      : expression(std::move(expression)) {}
 
-  void print(std::ostream& os, int n) const override {
+  void print(std::ostream &os, int n) const override {
     indent(os, n);
     os << "grouping\n";
     expression->print(os, n + 1);
@@ -96,6 +95,5 @@ struct Grouping : Expr {
 
   std::unique_ptr<Expr> expression;
 };
-
 
 #endif

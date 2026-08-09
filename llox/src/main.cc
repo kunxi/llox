@@ -1,10 +1,9 @@
 #include <fstream>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
 #include "lexer.h"
 #include "parser.h"
-
 
 void run(std::istream &stream, std::ostream &out) {
   Parser parser;
