@@ -4,6 +4,7 @@
 STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep '^gh-pages/' | grep -E '\.(astro|js|ts|css|md|json|mjs)$')
 if [ -n "$STAGED" ]; then
   echo "Formatting staged files..."
-  echo "$STAGED" | xargs -r npx prettier --write
+  ROOT=$(git rev-parse --show-toplevel)
+  echo "$STAGED" | xargs -r npx --prefix "$ROOT/gh-pages" prettier --write
   echo "$STAGED" | xargs -r git add
 fi
