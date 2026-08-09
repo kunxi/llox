@@ -103,7 +103,7 @@ Token Parser::previous() { return tokens.at(current - 1); }
 Token Parser::consume(TokenType type, std::string message) {
   if (check(type))
     return advance();
-  throw std::logic_error(message);
+  throw std::runtime_error(message);
 }
 
 bool Parser::ends() { return peek().type == TOKEN_EOF; }

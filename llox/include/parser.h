@@ -1,16 +1,17 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <memory>
-#include <initializer_list>
-#include <iostream>
 #include "lexer.h"
 #include "syntax.h"
+#include <initializer_list>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
 
 
 class Parser {
 public:
-  Parser(): tokens(), current(0) {};
+  Parser() : tokens(), current(0) {};
   // expr
   std::unique_ptr<Expr> expression();
   std::unique_ptr<Expr> equality();

@@ -41,10 +41,16 @@ void run_prompt() {
 int main(int argc, char *argv[]) {
   if (argc > 2) {
     std::cerr << "Usage: llox [script]";
-    std::exit(64);
-  } else if (argc == 2) {
-    run_file(argv[1]);
-  } else {
-    run_prompt();
+    return 64;
   }
+  try {
+      if (argc == 2) {
+        run_file(argv[1]);
+      } else {
+        run_prompt();
+      }
+  } catch(const std::runtime_error& e) {
+      std::cout << "Runtime error: " << e.what() << std::endl;
+  }
+  return 0;
 }
