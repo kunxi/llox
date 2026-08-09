@@ -7,11 +7,13 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 
 class Parser {
 public:
-  Parser() : tokens(), current(0) {};
+
+  Parser() : tokens(), program(), current(0) {};
   // expr
   std::unique_ptr<Expr> expression();
   std::unique_ptr<Expr> equality();
@@ -21,8 +23,15 @@ public:
   std::unique_ptr<Expr> unary();
   std::unique_ptr<Expr> primary();
 
+
+  // statement
+  std::unique_ptr<Stmt> statement();
+  std::unique_ptr<Stmt> expr_stmt();
+  std::unique_ptr<Stmt> print_stmt();
+
   // core functions
-  std::unique_ptr<Expr> parse(std::istream &stream);
+  void tokenize(std::istream &stream);
+  void parse();
 
 private:
   std::unique_ptr<Expr> binary(std::unique_ptr<Expr> (Parser::*next)(),
@@ -36,6 +45,7 @@ private:
   bool ends();
 
   std::vector<Token> tokens;
+  std::vector<std::unique_ptr<Stmt>> program;
   int current;
 };
 

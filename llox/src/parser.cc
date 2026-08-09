@@ -1,6 +1,7 @@
 #include "parser.h"
 #include <FlexLexer.h>
 
+
 // Expr
 std::unique_ptr<Expr> Parser::binary(std::unique_ptr<Expr> (Parser::*next)(),
                                      std::initializer_list<TokenType> types) {
@@ -61,16 +62,40 @@ std::unique_ptr<Expr> Parser::primary() {
   throw std::runtime_error("Expect expression.");
 }
 
-std::unique_ptr<Expr> Parser::parse(std::istream &stream) {
+// Stmt
+std::unique_ptr<Stmt> Parser::statement() {
+  if (match({TOKEN_PRINT}))
+    return print_stmt();
+  return expr_stmt();
+}
+
+std::unique_ptr<Stmt> Parser::expr_stmt() {
+  auto expr = expression();
+  consume(TOKEN_SEMICOLON, "Expect semicolon");
+  return std::make_unique<ExprStmt>(std::move(expr));
+}
+
+std::unique_ptr<Stmt> Parser::print_stmt() {
+  auto expr = expression();
+  consume(TOKEN_SEMICOLON, "Expect semicolon");
+  return std::make_unique<PrintStmt>(std::move(expr));
+}
+
+
+// Core function: tokenize and parse
+void Parser::tokenize(std::istream &stream) {
   FlexLexer *lexer = new yyFlexLexer(&stream);
   int token_type;
   do {
     token_type = lexer->yylex();
-    tokens.push_back(
-        Token(static_cast<TokenType>(token_type), lexer->YYText()));
+    tokens.push_back(Token(static_cast<TokenType>(token_type), lexer->YYText()));
   } while (token_type != TOKEN_EOF);
+}
 
-  return expression();
+void Parser::parse() {
+  while (!ends()) {
+    program.push_back(statement());
+  }
 }
 
 // Utility functions

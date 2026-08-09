@@ -86,6 +86,27 @@ struct Grouping : Expr {
   std::unique_ptr<Expr> expression;
 };
 
+
+/*
+ * Stmt is distinct with the Expr.
+ */
+struct Stmt {
+  virtual ~Stmt() = default;
+};
+
+struct PrintStmt : Stmt {
+  PrintStmt(std::unique_ptr<Expr> expression) : expression(std::move(expression)) {};
+
+  std::unique_ptr<Expr> expression;
+};
+
+struct ExprStmt: Stmt {
+  ExprStmt(std::unique_ptr<Expr> expression) : expression(std::move(expression)) {};
+
+  std::unique_ptr<Expr> expression;
+};
+
+
 // PrintVisitor: parenthesized output, e.g. (+ 1 2), (! true)
 struct PrintVisitor : ExprVisitor {
   std::ostream& os;
