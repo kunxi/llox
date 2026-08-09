@@ -7,8 +7,6 @@
 
 /*
 
-The syntax defined for lox:
-
 program        → statement* EOF ;
 
 statement      → exprStmt
@@ -30,6 +28,7 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
 
 struct Expr {
   virtual ~Expr() = default;
+
   virtual void print(std::ostream& os, int indent = 0) const = 0;
 
 protected:
@@ -51,7 +50,7 @@ struct Literal : Expr {
     os << "\n";
   }
 
-  std::variant<bool, double, nullptr_t, std::string> value;
+  std::variant<bool, double, std::nullptr_t, std::string> value;
 };
 
 struct Unary : Expr {
