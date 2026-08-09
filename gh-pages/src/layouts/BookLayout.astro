@@ -25,11 +25,12 @@ const parts = partIntros.map((intro) => ({
 
 // Determine which part is open for this page
 const currentChapter = all.find((c) => c.id.replace(/\.md$/, "") === slug);
-const openPart = currentChapter?.data.kind === "chapter"
-  ? currentChapter.data.part
-  : currentChapter?.data.kind === "part"
-    ? currentChapter.data.partNumber
-    : null;
+const openPart =
+  currentChapter?.data.kind === "chapter"
+    ? currentChapter.data.part
+    : currentChapter?.data.kind === "part"
+      ? currentChapter.data.partNumber
+      : null;
 
 const idx = all.findIndex((c) => c.id.replace(/\.md$/, "") === slug);
 const prev = idx > 0 ? all[idx - 1] : null;
@@ -49,8 +50,24 @@ function slugOf(entry: CollectionEntry<"chapters">): string {
   <body>
     <nav class="narrow">
       <a href={`${base}`}><strong>llox</strong></a>
-      {prev ? <a href={`${base}${slugOf(prev)}`} class="prev">←</a> : <span></span>}
-      {next ? <a href={`${base}${slugOf(next)}`} class="next">→</a> : <span></span>}
+      {
+        prev ? (
+          <a href={`${base}${slugOf(prev)}`} class="prev">
+            ←
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        next ? (
+          <a href={`${base}${slugOf(next)}`} class="next">
+            →
+          </a>
+        ) : (
+          <span />
+        )
+      }
     </nav>
 
     <div class="page">
@@ -65,9 +82,13 @@ function slugOf(entry: CollectionEntry<"chapters">): string {
                   <div class="toc-part-row">
                     <a
                       href={`${base}${p.slug}`}
-                      class:list={{ "toc-part-link": true, active: slug === p.slug }}
+                      class:list={{
+                        "toc-part-link": true,
+                        active: slug === p.slug,
+                      }}
                     >
-                      <small>{p.number}</small>{p.title}
+                      <small>{p.number}</small>
+                      {p.title}
                     </a>
                     <button
                       class="toc-part-toggle"
@@ -84,7 +105,8 @@ function slugOf(entry: CollectionEntry<"chapters">): string {
                           href={`${base}${slugOf(ch)}`}
                           class:list={{ active: slug === slugOf(ch) }}
                         >
-                          <small>{ch.data.number}</small>{ch.data.title}
+                          <small>{ch.data.number}</small>
+                          {ch.data.title}
                         </a>
                       </li>
                     ))}
@@ -112,24 +134,24 @@ function slugOf(entry: CollectionEntry<"chapters">): string {
       </article>
     </div>
     <script>
-      document.querySelectorAll('.toc-part-toggle').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const part = btn.closest('.toc-part');
-          const ul = part.querySelector('.toc-chapters');
-          const open = btn.getAttribute('aria-expanded') === 'true';
+      document.querySelectorAll(".toc-part-toggle").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const part = btn.closest(".toc-part");
+          const ul = part.querySelector(".toc-chapters");
+          const open = btn.getAttribute("aria-expanded") === "true";
 
           // Close all others
-          document.querySelectorAll('.toc-part-toggle').forEach((b) =>
-            b.setAttribute('aria-expanded', 'false')
-          );
-          document.querySelectorAll('.toc-chapters').forEach((u) =>
-            u.setAttribute('hidden', '')
-          );
+          document
+            .querySelectorAll(".toc-part-toggle")
+            .forEach((b) => b.setAttribute("aria-expanded", "false"));
+          document
+            .querySelectorAll(".toc-chapters")
+            .forEach((u) => u.setAttribute("hidden", ""));
 
           // Toggle this one
           if (!open) {
-            btn.setAttribute('aria-expanded', 'true');
-            ul.removeAttribute('hidden');
+            btn.setAttribute("aria-expanded", "true");
+            ul.removeAttribute("hidden");
           }
         });
       });

@@ -20,22 +20,30 @@ const isPart = data.kind === "part";
 const base = import.meta.env.BASE_URL;
 
 // Find parent part for chapters
-const part = data.kind === "chapter"
-  ? (() => {
-      const intro = all.find((c) => c.data.kind === "part" && c.data.partNumber === data.part);
-      if (!intro) return undefined;
-      return {
-        number: intro.data.partNumber!,
-        slug: intro.id.replace(/\.md$/, ""),
-        chapters: all.filter((c) => c.data.kind === "chapter" && c.data.part === intro.data.partNumber),
-      };
-    })()
-  : isPart
+const part =
+  data.kind === "chapter"
     ? (() => {
-        const chapters = all.filter((c) => c.data.kind === "chapter" && c.data.part === data.partNumber);
-        return { number: data.partNumber!, slug: slug!, chapters };
+        const intro = all.find(
+          (c) => c.data.kind === "part" && c.data.partNumber === data.part
+        );
+        if (!intro) return undefined;
+        return {
+          number: intro.data.partNumber!,
+          slug: intro.id.replace(/\.md$/, ""),
+          chapters: all.filter(
+            (c) =>
+              c.data.kind === "chapter" && c.data.part === intro.data.partNumber
+          ),
+        };
       })()
-    : undefined;
+    : isPart
+      ? (() => {
+          const chapters = all.filter(
+            (c) => c.data.kind === "chapter" && c.data.part === data.partNumber
+          );
+          return { number: data.partNumber!, slug: slug!, chapters };
+        })()
+      : undefined;
 ---
 
 <BookLayout title={data.title} slug={slug!}>
@@ -51,7 +59,11 @@ const part = data.kind === "chapter"
         <p>This part covers {part.chapters.length} chapters:</p>
         <ol>
           {part.chapters.map((ch) => (
-            <li><a href={`${base}${ch.id.replace(/\.md$/, "")}`}>{ch.data.title}</a></li>
+            <li>
+              <a href={`${base}${ch.id.replace(/\.md$/, "")}`}>
+                {ch.data.title}
+              </a>
+            </li>
           ))}
         </ol>
       </div>
@@ -62,5 +74,7 @@ const part = data.kind === "chapter"
     )
   }
 
-  <p style="margin-top: 24px;"><a href={`${base}`}>&larr; Back to Table of Contents</a></p>
+  <p style="margin-top: 24px;">
+    <a href={`${base}`}>&larr; Back to Table of Contents</a>
+  </p>
 </BookLayout>

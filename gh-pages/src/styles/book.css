@@ -1,5 +1,5 @@
 /* Crafting Interpreters book style */
-@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&family=Source+Sans+Pro:wght@300;400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&family=Source+Sans+Pro:wght@300;400;600;700&display=swap");
 
 :root {
   --bg: #fcfcfc;
@@ -23,7 +23,7 @@
 }
 
 body {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: "Source Sans Pro", sans-serif;
   font-weight: 400;
   font-size: 17px;
   line-height: 1.6;
@@ -163,7 +163,8 @@ a:hover {
   margin-right: 4px;
 }
 
-.chapters .first, .chapters .second {
+.chapters .first,
+.chapters .second {
   min-width: 0;
 }
 
@@ -395,7 +396,8 @@ nav.wide .contents {
   margin-bottom: 1em;
 }
 
-.chapter-content ul, .chapter-content ol {
+.chapter-content ul,
+.chapter-content ol {
   margin-bottom: 1em;
   padding-left: 1.5em;
 }
@@ -410,7 +412,8 @@ nav.wide .contents {
   width: 100%;
 }
 
-.chapter-content th, .chapter-content td {
+.chapter-content th,
+.chapter-content td {
   border: 1px solid var(--border);
   padding: 6px 12px;
   text-align: left;
@@ -436,7 +439,7 @@ nav.wide .contents {
 
 /* ===== Code blocks ===== */
 code {
-  font-family: 'Source Code Pro', monospace;
+  font-family: "Source Code Pro", monospace;
   font-size: 14px;
   background: #f0f0f0;
   padding: 1px 4px;

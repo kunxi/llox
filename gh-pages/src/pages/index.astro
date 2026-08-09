@@ -28,34 +28,61 @@ function slugOf(e: { id: string }): string {
   <div class="chapters">
     <div class="row">
       <div class="first">
-        {parts.slice(0, 2).map((part) => (
-          <>
-            <h2><span class="num">{part.number}.</span><a href={`${base}${part.slug}`}>{part.title}</a></h2>
-            <ul>
-              {part.chapters.map((ch) => (
-                <li><span class="num">{ch.data.number}.</span><a href={`${base}${slugOf(ch)}`}>{ch.data.title}</a></li>
-              ))}
-            </ul>
-          </>
-        ))}
+        {
+          parts.slice(0, 2).map((part) => (
+            <>
+              <h2>
+                <>
+                  <span class="num">{part.number}.</span>
+                  <a href={`${base}${part.slug}`}>{part.title}</a>
+                </>
+              </h2>
+              <ul>
+                {part.chapters.map((ch) => (
+                  <li>
+                    <span class="num">{ch.data.number}.</span>
+                    <a href={`${base}${slugOf(ch)}`}>{ch.data.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ))
+        }
       </div>
       <div class="second">
-        {parts.slice(2).map((part) => (
-          <>
-            <h2><span class="num">{part.number}.</span><a href={`${base}${part.slug}`}>{part.title}</a></h2>
-            <ul>
-              {part.chapters.map((ch) => (
-                <li><span class="num">{ch.data.number}.</span><a href={`${base}${slugOf(ch)}`}>{ch.data.title}</a></li>
-              ))}
-            </ul>
-          </>
-        ))}
+        {
+          parts.slice(2).map((part) => (
+            <>
+              <h2>
+                <>
+                  <span class="num">{part.number}.</span>
+                  <a href={`${base}${part.slug}`}>{part.title}</a>
+                </>
+              </h2>
+              <ul>
+                {part.chapters.map((ch) => (
+                  <li>
+                    <span class="num">{ch.data.number}.</span>
+                    <a href={`${base}${slugOf(ch)}`}>{ch.data.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ))
+        }
 
         <h2><span class="num">&#10087;</span>Backmatter</h2>
         <ul>
-          {backmatter.map((ch) => (
-            <li><span class="num">A{ch.data.number}.</span><a href={`${base}${slugOf(ch)}`}>{ch.data.title}</a></li>
-          ))}
+          {
+            backmatter.map((ch) => (
+              <li>
+                <>
+                  <span class="num">A{ch.data.number}.</span>
+                  <a href={`${base}${slugOf(ch)}`}>{ch.data.title}</a>
+                </>
+              </li>
+            ))
+          }
         </ul>
       </div>
     </div>

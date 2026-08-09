@@ -16,6 +16,6 @@ use nix
 ```
 
 this would instruct direnv to load nix-shell defined in `shell.nix`
-with binary, library installed, environment variables exported *only*
+with binary, library installed, environment variables exported _only_
 for this dev environment. Once you change the directory, this environment
 is auto unloaded, quite neat.
