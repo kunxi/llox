@@ -1,18 +1,17 @@
-#include <FlexLexer.h> // Automatically bundled header with your flex installation
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
 #include "lexer.h"
+#include "parser.h"
 
 
 void run(std::istream &stream, std::ostream &out) {
-  FlexLexer *lexer = new yyFlexLexer(&stream);
-  int token;
-  while ((token = lexer->yylex()) != TOKEN_EOF) {
-    out << "Token ID: " << token << " | Matched: [" << lexer->YYText() << "]"
-        << " | Length: " << lexer->YYLeng() << "\n";
-  }
+  Parser parser;
+  auto expr = parser.parse(stream);
+  PrintVisitor printer(out);
+  expr->accept(printer);
+  out << std::endl;
 }
 
 void run_file(char *path) {
@@ -42,10 +41,16 @@ void run_prompt() {
 int main(int argc, char *argv[]) {
   if (argc > 2) {
     std::cerr << "Usage: llox [script]";
-    std::exit(64);
-  } else if (argc == 2) {
-    run_file(argv[1]);
-  } else {
-    run_prompt();
+    return 64;
   }
+  try {
+      if (argc == 2) {
+        run_file(argv[1]);
+      } else {
+        run_prompt();
+      }
+  } catch(const std::runtime_error& e) {
+      std::cout << "Runtime error: " << e.what() << std::endl;
+  }
+  return 0;
 }

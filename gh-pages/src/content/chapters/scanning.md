@@ -3,7 +3,7 @@ title: Scanning
 kind: chapter
 part: II
 number: 4
-order: 8
+order: 5
 ---
 
 ## Tokens
@@ -17,18 +17,18 @@ var language = "lox";
 
 The scanner produces these tokens:
 
-| Token       | Lexeme      |
-|-------------|-------------|
-| `VAR`       | `var`       |
-| `IDENTIFIER`| `language`  |
-| `EQUAL`     | `=`         |
-| `STRING`    | `"lox"`     |
-| `SEMICOLON` | `;`         |
-| `EOF`       |             |
+| Token        | Lexeme     |
+| ------------ | ---------- |
+| `VAR`        | `var`      |
+| `IDENTIFIER` | `language` |
+| `EQUAL`      | `=`        |
+| `STRING`     | `"lox"`    |
+| `SEMICOLON`  | `;`        |
+| `EOF`        |            |
 
 ## Using Flex
 
-The first step in any interpreter is **scanning** (also called *lexing*).
+The first step in any interpreter is **scanning** (also called _lexing_).
 Instead of crafting the lexer by scanning characters, we use [flex].
 
 First, we need to define a `lexer.l`, it uses the regular expression
@@ -54,10 +54,10 @@ for pattern matching, and the order matters as it defines the precedence:
 ```
 
 It is worthy noting that pattern uses regular expression,
-so the special characters *must* be escaped. For numbers,
-we support `3`, `3.14`, `0.5`, but *not* `.5` or `3.`.
+so the special characters _must_ be escaped. For numbers,
+we support `3`, `3.14`, `0.5`, but _not_ `.5` or `3.`.
 
-The `lexer.l` is compiled by the *flex* to generate `lexer.cpp`:
+The `lexer.l` is compiled by the _flex_ to generate `lexer.cpp`:
 
 ```cmake
 find_package(FLEX REQUIRED)
@@ -78,8 +78,3 @@ target_include_directories(llox PRIVATE include/)
 ```
 
 [flex]: https://github.com/westes/flex
-
-## Next Up
-
-With tokens in hand, we'll feed them into the parser, which builds the
-syntax tree that the interpreter will eventually execute.

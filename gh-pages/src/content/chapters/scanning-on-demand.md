@@ -3,7 +3,7 @@ title: Scanning on Demand
 kind: chapter
 part: III
 number: 16
-order: 21
+order: 18
 ---
 
 🚧 Under construction.

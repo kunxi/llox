@@ -2,7 +2,7 @@
 title: A Tree-Walk Interpreter
 kind: part
 partNumber: II
-order: 7
+order: 4
 ---
 
 Building jlox, a tree-walk interpreter for Lox.

@@ -3,7 +3,7 @@ title: Inheritance
 kind: chapter
 part: II
 number: 13
-order: 17
+order: 14
 ---
 
 🚧 Under construction.
