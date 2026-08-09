@@ -41,10 +41,7 @@ jobs:
         working-directory: ${{ env.BUILD_PATH }}
 
       - name: Build with Astro
-        run: |
-          npx astro build \
-            --site "${{ steps.pages.outputs.origin }}" \
-            --base "${{ steps.pages.outputs.base_path }}"
+        run: npx astro build
         working-directory: ${{ env.BUILD_PATH }}
 
       - name: Upload artifact
