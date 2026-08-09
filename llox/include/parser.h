@@ -21,7 +21,7 @@ public:
   std::unique_ptr<Expr> primary();
 
   // core functions
-  void parse(std::istream &stream, std::ostream &out);
+  std::unique_ptr<Expr> parse(std::istream &stream);
 
 private:
   std::unique_ptr<Expr> binary(std::unique_ptr<Expr> (Parser::*next)(),

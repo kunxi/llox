@@ -8,7 +8,8 @@
 
 void run(std::istream &stream, std::ostream &out) {
   Parser parser;
-  parser.parse(stream, out);
+  auto expr = parser.parse(stream);
+  expr->print(out);
 }
 
 void run_file(char *path) {

@@ -61,7 +61,7 @@ std::unique_ptr<Expr> Parser::primary() {
   throw std::runtime_error("Expect expression.");
 }
 
-void Parser::parse(std::istream &stream, std::ostream &out) {
+std::unique_ptr<Expr> Parser::parse(std::istream &stream) {
   FlexLexer *lexer = new yyFlexLexer(&stream);
   int token_type;
   do {
@@ -70,8 +70,7 @@ void Parser::parse(std::istream &stream, std::ostream &out) {
         Token(static_cast<TokenType>(token_type), lexer->YYText()));
   } while (token_type != TOKEN_EOF);
 
-  auto expr = expression();
-  expr->print(out, 0);
+  return expression();
 }
 
 // Utility functions
