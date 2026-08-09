@@ -6,7 +6,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "sh scripts/setup-hooks.sh"
   },
   "dependencies": {
     "astro": "^5.0.0",
