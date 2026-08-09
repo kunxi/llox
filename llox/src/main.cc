@@ -9,7 +9,9 @@
 void run(std::istream &stream, std::ostream &out) {
   Parser parser;
   auto expr = parser.parse(stream);
-  expr->print(out);
+  PrintVisitor printer(out);
+  expr->accept(printer);
+  out << std::endl;
 }
 
 void run_file(char *path) {
