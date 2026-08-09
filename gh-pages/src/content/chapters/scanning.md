@@ -3,7 +3,7 @@ title: Scanning
 kind: chapter
 part: II
 number: 4
-order: 9
+order: 5
 ---
 
 ## Tokens
@@ -78,8 +78,3 @@ target_include_directories(llox PRIVATE include/)
 ```
 
 [flex]: https://github.com/westes/flex
-
-## Next Up
-
-With tokens in hand, we'll feed them into the parser, which builds the
-syntax tree that the interpreter will eventually execute.

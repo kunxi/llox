@@ -3,7 +3,7 @@ title: Representing Code
 kind: chapter
 part: II
 number: 5
-order: 10
+order: 6
 ---
 
 Let's focus on the expression first, we need to build
@@ -40,4 +40,23 @@ As C++ does not support garbage collection, we will use
 This would work because each node of the AST has one and
 only one parent except the root node.
 
-We will explore the visitor pattern in the code generation.
+## Visitor Pattern
+
+In the _Craft Interpreter_, the `Visitor` use both generic and virtual function.
+
+```java
+abstract class Expr {
+  interface Visitor<R> {
+    R visitAssignExpr(Assign expr);
+    ...
+  }
+  abstract <R> R accept(Visitor<R> visitor);
+}
+```
+
+This is **NOT** supported in C++ unless we use `std::any` to bridge the gap
+which eliminates the static type check in the compile time. The `ExprVisitor`
+only support `void visit(const T&)` which is suitable for object dump, but
+this cannot be used in the code generation. We will explore the
+[Visitor Pattern in Modern C++](https://learnmoderncpp.com/2022/11/01/visitor-pattern-in-modern-c/)
+for the codegen.

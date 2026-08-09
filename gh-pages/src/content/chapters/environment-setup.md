@@ -3,7 +3,7 @@ title: Environment Setup
 kind: chapter
 part: I
 number: 2
-order: 5
+order: 3
 ---
 
 Before we started the journey, I would like to share my development
@@ -16,6 +16,6 @@ use nix
 ```
 
 this would instruct direnv to load nix-shell defined in `shell.nix`
-with binary, library installed, environment variables exported *only*
+with binary, library installed, environment variables exported _only_
 for this dev environment. Once you change the directory, this environment
 is auto unloaded, quite neat.

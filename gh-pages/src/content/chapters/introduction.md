@@ -3,7 +3,7 @@ title: Introduction
 kind: chapter
 part: I
 number: 1
-order: 4
+order: 2
 ---
 
 Welcome to llox! This document is a companion document for me to study
@@ -20,7 +20,7 @@ Lox:
 1. **llox** — A tree-walk interpreter in C++, focused on simplicity and
    correctness.
 2. **lloxc** — A compiler in C++ to generate lox bytecode chunks.
-2. **clox** — A bytecode virtual machine in rust, focused on performance and
+3. **clox** — A bytecode virtual machine in rust, focused on performance and
    low-level implementation details.
 
 ## Why Lox?
@@ -46,6 +46,7 @@ class Breakfast {
 var bacon = Breakfast("bacon", "toast");
 bacon.serve();
 ```
+
 Read the [official document](https://craftinginterpreters.com/the-lox-language.html)
 for more details.
 
