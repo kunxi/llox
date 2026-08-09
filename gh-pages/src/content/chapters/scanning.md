@@ -6,11 +6,6 @@ number: 4
 order: 8
 ---
 
-The first step in any interpreter is **scanning** (also called *lexing*).
-The scanner takes the raw source code as a string and transforms it into
-a sequence of **tokens** — the meaningful words and punctuation of the
-language.
-
 ## Tokens
 
 A token is the smallest unit of meaning in a programming language. Given
@@ -31,50 +26,58 @@ The scanner produces these tokens:
 | `SEMICOLON` | `;`         |
 | `EOF`       |             |
 
-## The Scanner Loop
+## Using Flex
 
-At its core, a scanner is a simple loop:
+The first step in any interpreter is **scanning** (also called *lexing*).
+Instead of crafting the lexer by scanning characters, we use [flex].
+
+First, we need to define a `lexer.l`, it uses the regular expression
+for pattern matching, and the order matters as it defines the precedence:
 
 ```
-while not at end of source:
-    skip whitespace
-    look at current character
-    if it's a digit → scan a number
-    if it's a letter → scan an identifier or keyword
-    if it's a quote  → scan a string
-    otherwise       → scan an operator or punctuation
+%{
+#include "lexer.h"
+%}
+
+/* Configure Flex to output a C++ class */
+%option c++
+%option noyywrap
+
+%%
+\(              { return TOKEN_LEFT_PAREN; }
+\)              { return TOKEN_RIGHT_PAREN; }
+... ...
+
+[a-zA-Z_][a-zA-Z0-9_]*      { return TOKEN_IDENTIFIER; }
+\"[^"]*\"                   { return TOKEN_STRING; }
+([0-9]+\.?[0-9]*)           { return TOKEN_NUMBER; }
 ```
 
-### Lexical Grammar
+It is worthy noting that pattern uses regular expression,
+so the special characters *must* be escaped. For numbers,
+we support `3`, `3.14`, `0.5`, but *not* `.5` or `3.`.
 
-The scanner is guided by the *lexical grammar* of Lox — a set of rules that
-define what sequences of characters form valid tokens. Here's a taste:
+The `lexer.l` is compiled by the *flex* to generate `lexer.cpp`:
 
-- **Numbers**: `[0-9]+(\.[0-9]+)?`
-- **Identifiers**: `[a-zA-Z_][a-zA-Z0-9_]*`
-- **Keywords**: `var`, `fun`, `class`, `if`, `else`, `for`, `while`, `return`, etc.
-- **Strings**: `"` followed by any non-quote characters, then `"`
+```cmake
+find_package(FLEX REQUIRED)
+FLEX_TARGET(LoxScanner src/lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+```
 
-## Design Decisions
+and we can add generated source to the `SOURCES`:
 
-### Maximal Munch
+```cmake
+# Target: llox
+set(SOURCES
+    src/main.cc
+    ${FLEX_LoxScanner_OUTPUTS}
+)
+add_executable(llox ${SOURCES})
+target_include_directories(llox PRIVATE include/)
+```
 
-When multiple tokens could match, the scanner uses the **maximal munch**
-rule: it always matches the longest possible token. So `>=` is scanned as
-a single `GREATER_EQUAL` token, not as `GREATER` followed by `EQUAL`.
-
-### Reserved Words
-
-Keywords are reserved — you can't use `class` as a variable name. The
-scanner distinguishes keywords from identifiers by checking against a
-dictionary of reserved words after scanning what looks like an identifier.
-
-> **Design Note: Implicit Semicolons**
->
-> Some languages (like JavaScript and Go) allow omitting semicolons through
-> automatic semicolon insertion. Lox takes the simpler approach: semicolons
-> are required statement terminators. This keeps the scanner simpler and
-> avoids the subtle bugs that implicit semicolons introduce.
+[flex]: https://github.com/westes/flex
 
 ## Next Up
 
