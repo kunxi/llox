@@ -2,7 +2,7 @@
 title: Scanning
 kind: chapter
 part: II
-number: 4
+number: 3
 order: 5
 ---
 

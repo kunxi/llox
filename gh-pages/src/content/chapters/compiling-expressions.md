@@ -2,7 +2,7 @@
 title: Compiling Expressions
 kind: chapter
 part: III
-number: 17
+number: 16
 order: 19
 ---
 

@@ -2,7 +2,7 @@
 title: Hash Tables
 kind: chapter
 part: III
-number: 20
+number: 19
 order: 22
 ---
 

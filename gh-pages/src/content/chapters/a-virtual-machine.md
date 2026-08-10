@@ -2,7 +2,7 @@
 title: A Virtual Machine
 kind: chapter
 part: III
-number: 15
+number: 14
 order: 17
 ---
 

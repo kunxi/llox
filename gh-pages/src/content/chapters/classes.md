@@ -2,7 +2,7 @@
 title: Classes
 kind: chapter
 part: II
-number: 12
+number: 11
 order: 13
 ---
 

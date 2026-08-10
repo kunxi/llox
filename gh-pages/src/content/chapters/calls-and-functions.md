@@ -2,7 +2,7 @@
 title: Calls and Functions
 kind: chapter
 part: III
-number: 24
+number: 23
 order: 26
 ---
 

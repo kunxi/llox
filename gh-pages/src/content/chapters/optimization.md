@@ -2,7 +2,7 @@
 title: Optimization
 kind: chapter
 part: III
-number: 30
+number: 29
 order: 32
 ---
 

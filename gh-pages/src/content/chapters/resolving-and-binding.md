@@ -2,7 +2,7 @@
 title: Resolving and Binding
 kind: chapter
 part: II
-number: 11
+number: 10
 order: 12
 ---
 

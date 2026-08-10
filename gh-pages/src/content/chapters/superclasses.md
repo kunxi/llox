@@ -2,7 +2,7 @@
 title: Superclasses
 kind: chapter
 part: III
-number: 29
+number: 28
 order: 31
 ---
 

@@ -2,7 +2,7 @@
 title: Representing Code
 kind: chapter
 part: II
-number: 5
+number: 4
 order: 6
 ---
 

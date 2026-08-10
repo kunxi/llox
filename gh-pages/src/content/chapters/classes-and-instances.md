@@ -2,7 +2,7 @@
 title: Classes and Instances
 kind: chapter
 part: III
-number: 27
+number: 26
 order: 29
 ---
 
