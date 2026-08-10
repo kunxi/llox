@@ -74,11 +74,12 @@ std::unique_ptr<Stmt> Parser::declaration() {
     if (match({TOKEN_VAR})) {
       Token name = consume(TOKEN_IDENTIFIER, "Expect variable name.");
 
+      std::unique_ptr<Expr> initializer = nullptr;
       if (match({TOKEN_EQUAL})) {
-        auto initializer = expression();
-        consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
-        return make_unique<VarStmt>(name, std::move(initializer));
+        initializer = expression();
       }
+      consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+      return make_unique<VarStmt>(name, std::move(initializer));
     }
 
     return statement();
