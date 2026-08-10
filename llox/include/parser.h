@@ -22,6 +22,7 @@ public:
   std::unique_ptr<Expr> primary();
 
   // statement
+  std::unique_ptr<Stmt> declaration();
   std::unique_ptr<Stmt> statement();
   std::unique_ptr<Stmt> expr_stmt();
   std::unique_ptr<Stmt> print_stmt();
