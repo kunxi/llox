@@ -101,7 +101,7 @@ void Parser::tokenize(std::istream &stream) {
 
 void Parser::parse() {
   while (!ends()) {
-    program.push_back(statement());
+    statements.push_back(statement());
   }
 }
 

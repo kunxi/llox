@@ -14,15 +14,25 @@ find_package(FLEX REQUIRED)
 FLEX_TARGET(LoxScanner src/lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+# Dependency: LLVM
+find_package(LLVM REQUIRED CONFIG)
+message(STATUS "LLVM found: ${LLVM_PACKAGE_VERSION}")
+llvm_map_components_to_libnames(LLVM_LIBS core interpreter executionengine)
 
 # Target: llox
 set(SOURCES
     src/main.cc
     src/parser.cc
+    src/interpreter.cc
     ${FLEX_LoxScanner_OUTPUTS}
 )
 add_executable(llox ${SOURCES})
-target_include_directories(llox PRIVATE include/)
+target_include_directories(llox
+  PRIVATE
+    include/
+    ${LLVM_INCLUDE_DIRS}
+)
+target_link_libraries(llox PRIVATE ${LLVM_LIBS})
 
 # Add compiler warnings to ensure high code quality
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
@@ -41,4 +51,9 @@ set(TEST_SOURCES
     ${FLEX_LoxScanner_OUTPUTS}
 )
 add_executable(llox_test ${TEST_SOURCES})
-target_include_directories(llox_test PRIVATE include/)
+target_include_directories(llox_test
+  PRIVATE
+    include/
+    ${LLVM_INCLUDE_DIRS}
+)
+target_link_libraries(llox_test PRIVATE ${LLVM_LIBS})

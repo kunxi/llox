@@ -5,6 +5,7 @@
 #include <memory>
 #include <ostream>
 #include <string>
+#include "lexer.h"
 
 /*
 
@@ -29,6 +30,9 @@ primary        → NUMBER | STRING | "true" | "false" | "nil"
                | "(" expression ")" ;
  */
 
+#include "llvm/IR/Value.h"
+
+using Value = llvm::Value;
 struct Literal;
 struct Unary;
 struct Binary;
@@ -42,8 +46,19 @@ struct ExprVisitor {
   virtual ~ExprVisitor() = default;
 };
 
+// Unlike Java, we cannot use template and virtual function
+// at the same time.
+struct CodegenVisitor {
+    virtual Value* visit(const Literal& expr) = 0;
+    virtual Value* visit(const Unary& expr) = 0;
+    virtual Value* visit(const Binary& expr) = 0;
+    virtual Value* visit(const Grouping& expr) = 0;
+    virtual ~CodegenVisitor() = default;
+};
+
 struct Expr {
   virtual void accept(ExprVisitor& v) const = 0;
+  virtual Value* accept(CodegenVisitor& v) const = 0;
   virtual ~Expr() = default;
 };
 
@@ -52,6 +67,7 @@ struct Literal : Expr {
   explicit Literal(T&& val) : value(std::forward<T>(val)) {}
 
   void accept(ExprVisitor& v) const override { v.visit(*this); }
+  Value* accept(CodegenVisitor& v) const override { return v.visit(*this); }
 
   std::variant<bool, double, std::nullptr_t, std::string> value;
 };
@@ -61,6 +77,7 @@ struct Unary : Expr {
     : op(op), right(std::move(right)) {}
 
   void accept(ExprVisitor& v) const override { v.visit(*this); }
+  Value* accept(CodegenVisitor& v) const override { return v.visit(*this); }
 
   Token op;
   std::unique_ptr<Expr> right;
@@ -71,6 +88,7 @@ struct Binary : Expr {
     : left(std::move(left)), op(op), right(std::move(right)) {}
 
   void accept(ExprVisitor& v) const override { v.visit(*this); }
+  Value* accept(CodegenVisitor& v) const override { return v.visit(*this); }
 
   std::unique_ptr<Expr> left;
   Token op;
@@ -82,6 +100,7 @@ struct Grouping : Expr {
     : expression(std::move(expression)) {}
 
   void accept(ExprVisitor& v) const override { v.visit(*this); }
+  Value* accept(CodegenVisitor& v) const override { return v.visit(*this); }
 
   std::unique_ptr<Expr> expression;
 };

@@ -4,13 +4,17 @@
 
 #include "lexer.h"
 #include "parser.h"
+#include "interpreter.h"
 
 
 void run(std::istream &stream, std::ostream &out) {
   Parser parser;
   parser.tokenize(stream);
   parser.parse();
-  out << "done" << std::endl;
+
+  Interpreter interpreter;
+  interpreter.execute(parser.program());
+  (void) out;
 }
 
 void run_file(char *path) {
