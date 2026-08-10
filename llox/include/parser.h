@@ -9,11 +9,9 @@
 #include <stdexcept>
 #include <vector>
 
-
 class Parser {
 public:
-
-  Parser() : tokens(), program(), current(0) {};
+  Parser() : tokens(), current(0), statements() {};
   // expr
   std::unique_ptr<Expr> expression();
   std::unique_ptr<Expr> equality();
@@ -23,7 +21,6 @@ public:
   std::unique_ptr<Expr> unary();
   std::unique_ptr<Expr> primary();
 
-
   // statement
   std::unique_ptr<Stmt> statement();
   std::unique_ptr<Stmt> expr_stmt();
@@ -32,6 +29,7 @@ public:
   // core functions
   void tokenize(std::istream &stream);
   void parse();
+  const std::vector<std::unique_ptr<Stmt>> &program() { return statements; }
 
 private:
   std::unique_ptr<Expr> binary(std::unique_ptr<Expr> (Parser::*next)(),
@@ -45,8 +43,8 @@ private:
   bool ends();
 
   std::vector<Token> tokens;
-  std::vector<std::unique_ptr<Stmt>> program;
   int current;
+  std::vector<std::unique_ptr<Stmt>> statements;
 };
 
 #endif
