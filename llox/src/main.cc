@@ -8,10 +8,9 @@
 
 void run(std::istream &stream, std::ostream &out) {
   Parser parser;
-  auto expr = parser.parse(stream);
-  PrintVisitor printer(out);
-  expr->accept(printer);
-  out << std::endl;
+  parser.tokenize(stream);
+  parser.parse();
+  out << "done" << std::endl;
 }
 
 void run_file(char *path) {
