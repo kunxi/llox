@@ -138,3 +138,5 @@ Type something (press Ctrl+D on Linux/Mac or Ctrl+Z on Windows to stop):
 15
 >
 ```
+
+Check out the [PR #8](https://github.com/kunxi/llox/pull/8) for details.
