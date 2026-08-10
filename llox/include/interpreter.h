@@ -8,19 +8,30 @@
 #include "llvm/IR/Module.h"
 #include "llvm/ExecutionEngine/ExecutionEngine.h"
 #include <memory>
+#include <map>
 
 using Value = llvm::Value;
 
-class Interpreter : public CodegenVisitor {
+class Interpreter : public CodegenVisitor, public StmtVisitor {
 public:
   Interpreter()
       : context(std::make_unique<llvm::LLVMContext>()),
         module(std::make_unique<llvm::Module>("llox jit", *context)),
-        builder(std::make_unique<llvm::IRBuilder<>>(*context)) {};
+        builder(std::make_unique<llvm::IRBuilder<>>(*context)),
+        variables() {
+    // ponytail: create a dummy function so the builder has somewhere to insert
+    auto* ft = llvm::FunctionType::get(llvm::Type::getVoidTy(*context), false);
+    auto* fn = llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__llox_main", *module);
+    auto* bb = llvm::BasicBlock::Create(*context, "entry", fn);
+    builder->SetInsertPoint(bb);
+  };
 
-  void execute(ExprStmt& stmt) { (void)stmt; }
-  void execute(PrintStmt& stmt);
-  void execute(const std::vector<std::unique_ptr<Stmt>> &program);
+  // StmtVisitor
+  void visit(const ExprStmt& stmt) override;
+  void visit(const PrintStmt& stmt) override;
+  void visit(const VarStmt& stmt) override;
+
+  void execute(const std::vector<std::unique_ptr<Stmt>>& program);
 
   // CodegenVisitor
   Value* visit(const Literal& expr) override;
@@ -29,7 +40,6 @@ public:
   Value* visit(const Grouping& expr) override;
 
 private:
-  // Utility
   llvm::FunctionCallee get_printf();
   Value* log_error_v(const char* s);
 
@@ -37,6 +47,7 @@ private:
   std::unique_ptr<llvm::Module> module;
   std::unique_ptr<llvm::IRBuilder<>> builder;
   std::unique_ptr<llvm::ExecutionEngine> engine;
+  std::map<std::string, Value*> variables;
 };
 
 #endif

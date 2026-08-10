@@ -1,8 +1,11 @@
 #include "interpreter.h"
 #include "syntax.h"
 #include <iostream>
+
 #include "llvm/ExecutionEngine/GenericValue.h"
 #include "llvm/ExecutionEngine/Interpreter.h"
+
+using namespace llvm;
 
 void Interpreter::execute(const std::vector<std::unique_ptr<Stmt>> &program) {
   // Setup the __main function
@@ -12,32 +15,32 @@ void Interpreter::execute(const std::vector<std::unique_ptr<Stmt>> &program) {
   auto *bb = llvm::BasicBlock::Create(*context, "entry", mainFn);
   builder->SetInsertPoint(bb);
 
-  for (auto &stmt : program) {
-    // TODO: use virtual function
-    if (auto *es = dynamic_cast<ExprStmt *>(stmt.get()))
-      execute(*es);
-    else if (auto *ps = dynamic_cast<PrintStmt *>(stmt.get()))
-      execute(*ps);
+  for (const auto &stmt : program) {
+    stmt->accept(*this);
   }
 
   builder->CreateRetVoid();
 
-   // ponytail: EngineBuilder takes ownership of the module
-   std::string err;
-   engine.reset(llvm::EngineBuilder(std::move(module))
-       .setEngineKind(llvm::EngineKind::Interpreter)
-       .setErrorStr(&err)
-       .create());
-   if (!engine) {
-       std::cerr << "EngineBuilder failed: " << err << "\n";
-       return;
-   }
-   engine->runFunction(engine->FindFunctionNamed("__main"), {});
+  // ponytail: EngineBuilder takes ownership of the module
+  std::string err;
+  engine.reset(llvm::EngineBuilder(std::move(module))
+                   .setEngineKind(llvm::EngineKind::Interpreter)
+                   .setErrorStr(&err)
+                   .create());
+  if (!engine) {
+    std::cerr << "EngineBuilder failed: " << err << "\n";
+    return;
+  }
+  engine->runFunction(engine->FindFunctionNamed("__main"), {});
 
-   engine.reset();
+  engine.reset();
 }
 
-void Interpreter::execute(PrintStmt &stmt) {
+void Interpreter::visit(const ExprStmt &stmt) {
+  stmt.expression->accept(*this);
+}
+
+void Interpreter::visit(const PrintStmt &stmt) {
   Value *val = stmt.expression->accept(*this);
   if (!val)
     return;
@@ -47,15 +50,26 @@ void Interpreter::execute(PrintStmt &stmt) {
   builder->CreateCall(printf, {fmt, val});
 }
 
+void Interpreter::visit(const VarStmt &stmt) {
+  Value *val = nullptr;
+  if (stmt.initializer != nullptr) {
+    val = stmt.initializer->accept(*this);
+  }
+
+  // Resolve to assign expr.
+  variables.insert({stmt.name.lexeme, val});
+}
+
 Value *Interpreter::visit(const Literal &literal) {
   if (auto pval = std::get_if<double>(&literal.value)) {
-    return llvm::ConstantFP::get(*context, llvm::APFloat(*pval));
+    return ConstantFP::get(*context, APFloat(*pval));
   }
   if (auto pval = std::get_if<bool>(&literal.value)) {
-    return llvm::ConstantFP::get(*context, llvm::APFloat(*pval ? 1.0 : 0.0));
+    return ConstantFP::get(*context, APFloat(*pval ? 1.0 : 0.0));
   }
-  if (std::get_if<std::string>(&literal.value)) {
-    return log_error_v("string literals not yet supported");
+  if (auto pval = std::get_if<std::string>(&literal.value)) {
+    Value *val = variables.at(*pval);
+    return val;
   }
   return nullptr;
 }
@@ -98,7 +112,7 @@ Value *Interpreter::visit(const Grouping &grouping) {
 }
 
 llvm::FunctionCallee Interpreter::get_printf() {
-  auto *ty = llvm::FunctionType::get(llvm::Type::getInt32Ty(*context),
+  auto *ty = FunctionType::get(llvm::Type::getInt32Ty(*context),
                                {llvm::PointerType::get(*context, 0)}, true);
   return module->getOrInsertFunction("printf", ty);
 }

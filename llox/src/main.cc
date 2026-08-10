@@ -14,7 +14,7 @@ void run(std::istream &stream, std::ostream &out) {
 
   Interpreter interpreter;
   interpreter.execute(parser.program());
-  (void) out;
+  (void)out;
 }
 
 void run_file(char *path) {
