@@ -2,7 +2,7 @@
 title: Closures
 kind: chapter
 part: III
-number: 25
+number: 24
 order: 27
 ---
 

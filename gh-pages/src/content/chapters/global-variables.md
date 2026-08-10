@@ -2,7 +2,7 @@
 title: Global Variables
 kind: chapter
 part: III
-number: 21
+number: 20
 order: 23
 ---
 

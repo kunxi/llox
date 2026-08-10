@@ -2,7 +2,7 @@
 title: Chunks of Bytecode
 kind: chapter
 part: III
-number: 14
+number: 13
 order: 16
 ---
 

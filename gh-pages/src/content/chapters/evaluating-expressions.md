@@ -2,7 +2,7 @@
 title: Evaluating Expressions
 kind: chapter
 part: II
-number: 7
+number: 6
 order: 8
 ---
 

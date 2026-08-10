@@ -2,7 +2,7 @@
 title: Methods and Initializers
 kind: chapter
 part: III
-number: 28
+number: 27
 order: 30
 ---
 

@@ -2,7 +2,7 @@
 title: Inheritance
 kind: chapter
 part: II
-number: 13
+number: 12
 order: 14
 ---
 

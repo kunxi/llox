@@ -2,7 +2,7 @@
 title: Strings
 kind: chapter
 part: III
-number: 19
+number: 18
 order: 21
 ---
 

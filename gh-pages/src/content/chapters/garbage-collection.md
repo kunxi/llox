@@ -2,7 +2,7 @@
 title: Garbage Collection
 kind: chapter
 part: III
-number: 26
+number: 25
 order: 28
 ---
 
