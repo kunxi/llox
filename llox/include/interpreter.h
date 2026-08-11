@@ -18,7 +18,6 @@ public:
       : context(std::make_unique<llvm::LLVMContext>()),
         module(std::make_unique<llvm::Module>("llox jit", *context)),
         builder(std::make_unique<llvm::IRBuilder<>>(*context)), variables() {
-    // ponytail: create a dummy function so the builder has somewhere to insert
     auto *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(*context), false);
     auto *fn = llvm::Function::Create(ft, llvm::Function::ExternalLinkage,
                                       "__llox_main", *module);
