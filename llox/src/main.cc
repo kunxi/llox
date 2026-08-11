@@ -1,11 +1,10 @@
 #include <fstream>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
+#include "interpreter.h"
 #include "lexer.h"
 #include "parser.h"
-#include "interpreter.h"
-
 
 void run(std::istream &stream, std::ostream &out) {
   Parser parser;
@@ -14,7 +13,7 @@ void run(std::istream &stream, std::ostream &out) {
 
   Interpreter interpreter;
   interpreter.execute(parser.program());
-  (void) out;
+  (void)out;
 }
 
 void run_file(char *path) {
@@ -47,13 +46,13 @@ int main(int argc, char *argv[]) {
     return 64;
   }
   try {
-      if (argc == 2) {
-        run_file(argv[1]);
-      } else {
-        run_prompt();
-      }
-  } catch(const std::runtime_error& e) {
-      std::cout << "Runtime error: " << e.what() << std::endl;
+    if (argc == 2) {
+      run_file(argv[1]);
+    } else {
+      run_prompt();
+    }
+  } catch (const std::runtime_error &e) {
+    std::cout << "Runtime error: " << e.what() << std::endl;
   }
   return 0;
 }
