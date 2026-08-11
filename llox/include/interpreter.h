@@ -17,13 +17,7 @@ public:
   Interpreter()
       : context(std::make_unique<llvm::LLVMContext>()),
         module(std::make_unique<llvm::Module>("llox jit", *context)),
-        builder(std::make_unique<llvm::IRBuilder<>>(*context)), variables() {
-    auto *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(*context), false);
-    auto *fn = llvm::Function::Create(ft, llvm::Function::ExternalLinkage,
-                                      "__llox_main", *module);
-    auto *bb = llvm::BasicBlock::Create(*context, "entry", fn);
-    builder->SetInsertPoint(bb);
-  };
+        builder(std::make_unique<llvm::IRBuilder<>>(*context)), variables() {};
 
   // StmtVisitor
   void visit(const ExprStmt &stmt) override;
