@@ -1,0 +1,20 @@
+#!/bin/sh
+# Pre-commit hook: format staged files
+
+ROOT=$(git rev-parse --show-toplevel)
+
+# gh-pages: prettier
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep '^gh-pages/' | grep -E '\.(astro|js|ts|css|md|json|mjs)$')
+if [ -n "$STAGED" ]; then
+  echo "Formatting (prettier)..."
+  echo "$STAGED" | xargs -r npx --prefix "$ROOT/gh-pages" prettier --write
+  echo "$STAGED" | xargs -r git add
+fi
+
+# llox: clang-format
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep '^llox/' | grep -E '\.(h|cc|cpp|cxx|l)$')
+if [ -n "$STAGED" ]; then
+  echo "Formatting (clang-format)..."
+  echo "$STAGED" | xargs -r clang-format -i --style=file:"$ROOT/llox/.clang-format"
+  echo "$STAGED" | xargs -r git add
+fi
