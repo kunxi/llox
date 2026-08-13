@@ -31,6 +31,8 @@ public:
   Value *visit(const Unary &expr) override;
   Value *visit(const Binary &expr) override;
   Value *visit(const Grouping &expr) override;
+  Value *visit(const Assign &expr) override;
+  Value *visit(const Variable &expr) override;
 
 private:
   llvm::FunctionCallee get_printf();

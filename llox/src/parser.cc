@@ -13,15 +13,26 @@ std::unique_ptr<Expr> Parser::binary(std::unique_ptr<Expr> (Parser::*next)(),
   return expr;
 }
 
-std::unique_ptr<Expr> Parser::expression() { return equality(); }
+std::unique_ptr<Expr> Parser::expression() {
+  return assignment();
+}
+
+std::unique_ptr<Expr> Parser::assignment() {
+  auto lvalue = equality();
+  if (match({TOKEN_EQUAL})) {
+    auto equals = previous();
+    auto rvalue = assignment();
+    return make_unique<Assign>(std::move(lvalue), std::move(rvalue));
+  }
+  return lvalue;
+}
 
 std::unique_ptr<Expr> Parser::equality() {
   return binary(&Parser::comparison, {TOKEN_BANG_EQUAL, TOKEN_EQUAL_EQUAL});
 }
 
 std::unique_ptr<Expr> Parser::comparison() {
-  return binary(&Parser::term, {TOKEN_GREATER, TOKEN_GREATER_EQUAL, TOKEN_LESS,
-                                TOKEN_LESS_EQUAL});
+  return binary(&Parser::term, {TOKEN_GREATER, TOKEN_GREATER_EQUAL, TOKEN_LESS, TOKEN_LESS_EQUAL});
 }
 
 std::unique_ptr<Expr> Parser::term() {
@@ -56,7 +67,7 @@ std::unique_ptr<Expr> Parser::primary() {
     return std::make_unique<Literal>(lexeme.substr(1, lexeme.size() - 2));
   }
   if (match({TOKEN_IDENTIFIER}))
-    return std::make_unique<Literal>(previous().lexeme);
+    return std::make_unique<Variable>(previous());
 
   if (match({TOKEN_LEFT_PAREN})) {
     auto expr = expression();
@@ -113,8 +124,7 @@ void Parser::tokenize(std::istream &stream) {
   int token_type;
   do {
     token_type = lexer->yylex();
-    tokens.push_back(
-        Token(static_cast<TokenType>(token_type), lexer->YYText()));
+    tokens.push_back(Token(static_cast<TokenType>(token_type), lexer->YYText()));
   } while (token_type != TOKEN_EOF);
 }
 
@@ -141,7 +151,9 @@ bool Parser::check(TokenType type) {
   return peek().type == type;
 }
 
-Token Parser::peek() { return tokens.at(current); }
+Token Parser::peek() {
+  return tokens.at(current);
+}
 
 Token Parser::advance() {
   if (!ends())
@@ -149,7 +161,9 @@ Token Parser::advance() {
   return previous();
 }
 
-Token Parser::previous() { return tokens.at(current - 1); }
+Token Parser::previous() {
+  return tokens.at(current - 1);
+}
 
 Token Parser::consume(TokenType type, std::string message) {
   if (check(type))
@@ -157,4 +171,6 @@ Token Parser::consume(TokenType type, std::string message) {
   throw std::runtime_error(message);
 }
 
-bool Parser::ends() { return peek().type == TOKEN_EOF; }
+bool Parser::ends() {
+  return peek().type == TOKEN_EOF;
+}

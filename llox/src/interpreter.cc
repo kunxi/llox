@@ -10,8 +10,8 @@ using namespace llvm;
 void Interpreter::execute(const std::vector<std::unique_ptr<Stmt>> &program) {
   // Setup the __main function
   auto *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(*context), false);
-  auto *mainFn = llvm::Function::Create(ft, llvm::Function::ExternalLinkage,
-                                        "__main", module.get());
+  auto *mainFn =
+      llvm::Function::Create(ft, llvm::Function::ExternalLinkage, "__main", module.get());
   auto *bb = llvm::BasicBlock::Create(*context, "entry", mainFn);
   builder->SetInsertPoint(bb);
 
@@ -109,6 +109,27 @@ Value *Interpreter::visit(const Binary &binary) {
 
 Value *Interpreter::visit(const Grouping &grouping) {
   return grouping.expression->accept(*this);
+}
+
+Value *Interpreter::visit(const Assign &assign) {
+  // Make sure the variable is declared.
+  auto lval = dynamic_cast<Variable *>(assign.lvalue.get());
+  if (lval != nullptr) {
+    auto name = lval->name.lexeme;
+    auto it = variables.find(name);
+    if (it == variables.end()) {
+      return log_error_v("name is not declared");
+    }
+    auto rval = assign.rvalue->accept(*this);
+    it->second = rval;
+    return rval;
+  }
+  throw std::runtime_error("cannot assign to lvalue");
+}
+
+Value *Interpreter::visit(const Variable &variable) {
+  (void)variable;
+  return nullptr;
 }
 
 llvm::FunctionCallee Interpreter::get_printf() {
