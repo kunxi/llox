@@ -67,10 +67,6 @@ Value *Interpreter::visit(const Literal &literal) {
   if (auto pval = std::get_if<bool>(&literal.value)) {
     return ConstantFP::get(*context, APFloat(*pval ? 1.0 : 0.0));
   }
-  if (auto pval = std::get_if<std::string>(&literal.value)) {
-    Value *val = variables.at(*pval);
-    return val;
-  }
   return nullptr;
 }
 
@@ -128,8 +124,8 @@ Value *Interpreter::visit(const Assign &assign) {
 }
 
 Value *Interpreter::visit(const Variable &variable) {
-  (void)variable;
-  return nullptr;
+  Value *val = variables.at(variable.name.lexeme);
+  return val;
 }
 
 llvm::FunctionCallee Interpreter::get_printf() {
