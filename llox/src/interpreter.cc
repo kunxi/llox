@@ -1,5 +1,7 @@
 #include "interpreter.h"
 #include "syntax.h"
+#include <cstdint>
+#include <cstdio>
 #include <iostream>
 
 #include "llvm/ExecutionEngine/GenericValue.h"
@@ -7,7 +9,22 @@
 
 using namespace llvm;
 
+// Called from JIT'd code instead of printf. `sink` is the address of the
+// active Interpreter's output buffer, threaded through the IR as an argument.
+extern "C" void llox_print(std::string *sink, double value) {
+  char buf[64];
+  snprintf(buf, sizeof buf, "%g", value);
+  *sink += buf;
+  *sink += '\n';
+}
+
+std::string Interpreter::output() const {
+  return out;
+}
+
 void Interpreter::execute(const std::vector<std::unique_ptr<Stmt>> &program) {
+  out.clear();
+
   // Setup the __main function
   auto *ft = llvm::FunctionType::get(llvm::Type::getVoidTy(*context), false);
   auto *mainFn =
@@ -45,9 +62,11 @@ void Interpreter::visit(const PrintStmt &stmt) {
   if (!val)
     return;
 
-  auto printf = get_printf();
-  auto *fmt = builder->CreateGlobalString("%g\n");
-  builder->CreateCall(printf, {fmt, val});
+  auto *i8ptr = llvm::PointerType::get(*context, 0);
+  auto *addr =
+      llvm::ConstantInt::get(llvm::Type::getInt64Ty(*context), reinterpret_cast<uint64_t>(&out));
+  auto *sink = builder->CreateIntToPtr(addr, i8ptr, "sink");
+  builder->CreateCall(get_print_fn(), {sink, val});
 }
 
 void Interpreter::visit(const VarStmt &stmt) {
@@ -79,7 +98,7 @@ Value *Interpreter::visit(const Unary &unary) {
   case TOKEN_BANG:
     return builder->CreateNot(right, "nottmp");
   default:
-    return log_error_v("invalid unary operator");
+    return log_error_v("Invalid unary operator: {}", unary.op.lexeme);
   }
 }
 
@@ -99,7 +118,7 @@ Value *Interpreter::visit(const Binary &binary) {
   case TOKEN_LESS:
     return builder->CreateFCmpULT(L, R, "cmptmp");
   default:
-    return log_error_v("invalid binary operator");
+    return log_error_v("Invalid binary operator: {}", binary.op.lexeme);
   }
 }
 
@@ -120,7 +139,7 @@ Value *Interpreter::visit(const Assign &assign) {
     it->second = rval;
     return rval;
   }
-  throw std::runtime_error("cannot assign to lvalue");
+  throw std::runtime_error("Cannot assign to lvalue");
 }
 
 Value *Interpreter::visit(const Variable &variable) {
@@ -128,13 +147,9 @@ Value *Interpreter::visit(const Variable &variable) {
   return val;
 }
 
-llvm::FunctionCallee Interpreter::get_printf() {
-  auto *ty = FunctionType::get(llvm::Type::getInt32Ty(*context),
-                               {llvm::PointerType::get(*context, 0)}, true);
-  return module->getOrInsertFunction("printf", ty);
-}
-
-Value *Interpreter::log_error_v(const char *message) {
-  std::cerr << message << "\n";
-  return nullptr;
+llvm::FunctionCallee Interpreter::get_print_fn() {
+  auto *ty = FunctionType::get(
+      llvm::Type::getVoidTy(*context),
+      {llvm::PointerType::get(*context, 0), llvm::Type::getDoubleTy(*context)}, false);
+  return module->getOrInsertFunction("llox_print", ty);
 }

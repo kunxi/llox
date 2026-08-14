@@ -57,3 +57,18 @@ target_include_directories(llox_test
     ${LLVM_INCLUDE_DIRS}
 )
 target_link_libraries(llox_test PRIVATE ${LLVM_LIBS})
+add_test(NAME llox_test COMMAND llox_test)
+
+add_executable(llox_stmt_test
+    src/parser.cc
+    src/interpreter.cc
+    tests/test_stmt.cc
+    ${FLEX_LoxScanner_OUTPUTS}
+)
+target_include_directories(llox_stmt_test
+  PRIVATE
+    include/
+    ${LLVM_INCLUDE_DIRS}
+)
+target_link_libraries(llox_stmt_test PRIVATE ${LLVM_LIBS})
+add_test(NAME llox_stmt_test COMMAND llox_stmt_test)
