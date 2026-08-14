@@ -11,14 +11,12 @@ a AST to resolve the precedence using
 [recursive decent parser](https://en.wikipedia.org/wiki/Recursive_descent_parser)
 as suggested in the _Crafting Interpreter_.
 
-The syntax tree have _four_ types of nodes:
+The syntax tree have _four_ types of nodes, derived from `Expr`.
 
 - `Literal`: the leaf node with `number`, `string`, `boolean`, and `nil` types.
 - `Unary`: unary operation with `(token, rhs)`.
 - `Binary`: binary operation with `(lhs, token, rhs)`.
 - `Grouping`: grouping operation.
-
-They all derive from the abstract class `Expr`.
 
 The `Literal` can holds various types of data, number, boolean,
 string, and nil. We can use `std::variant` to store the value.
@@ -39,6 +37,9 @@ As C++ does not support garbage collection, we will use
 `unique_ptr` to claim the ownership of the child element.
 This would work because each node of the AST has one and
 only one parent except the root node.
+
+The parser is manually crafted, it resolve the tokens as `expression`,
+and descent to `equality`, `comparison`, etc, and resolve to `Expr`.
 
 ## Visitor Pattern
 
@@ -81,7 +82,7 @@ struct PrintVisitor : ExprVisitor {
   }
 ```
 
-This works for object dump, see [PR &6](https://github.com/kunxi/llox/pull/6) for more details; but cannot be used in the code generation.
+This works for object dump, see [PR #6](https://github.com/kunxi/llox/pull/6) for more details; but cannot be used in the code generation.
 We will explore the
 [Visitor Pattern in Modern C++](https://learnmoderncpp.com/2022/11/01/visitor-pattern-in-modern-c/)
 for the codegen.
