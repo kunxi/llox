@@ -24,7 +24,9 @@ statement      → exprStmt
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
 
-expression     → equality ;
+expression     → assignment ;
+assignment     → IDENTIFIER "=" assignment
+               | equality ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;
@@ -42,6 +44,8 @@ struct Literal;
 struct Unary;
 struct Binary;
 struct Grouping;
+struct Assign;
+struct Variable;
 struct ExprStmt;
 struct PrintStmt;
 struct VarStmt;
@@ -53,6 +57,8 @@ struct ExprVisitor {
   virtual void visit(const Unary &expr) = 0;
   virtual void visit(const Binary &expr) = 0;
   virtual void visit(const Grouping &expr) = 0;
+  virtual void visit(const Assign &expr) = 0;
+  virtual void visit(const Variable &expr) = 0;
   virtual ~ExprVisitor() = default;
 };
 
@@ -61,6 +67,8 @@ struct CodegenVisitor {
   virtual Value *visit(const Unary &expr) = 0;
   virtual Value *visit(const Binary &expr) = 0;
   virtual Value *visit(const Grouping &expr) = 0;
+  virtual Value *visit(const Assign &expr) = 0;
+  virtual Value *visit(const Variable &expr) = 0;
   virtual ~CodegenVisitor() = default;
 };
 
@@ -80,16 +88,14 @@ struct Expr {
 };
 
 struct Literal : Expr {
-  template <typename T>
-  explicit Literal(T &&val) : value(std::forward<T>(val)) {}
+  template <typename T> explicit Literal(T &&val) : value(std::forward<T>(val)) {}
   void accept(ExprVisitor &v) const override { v.visit(*this); }
   Value *accept(CodegenVisitor &v) const override { return v.visit(*this); }
   std::variant<bool, double, std::nullptr_t, std::string> value;
 };
 
 struct Unary : Expr {
-  Unary(Token op, std::unique_ptr<Expr> right)
-      : op(op), right(std::move(right)) {}
+  Unary(Token op, std::unique_ptr<Expr> right) : op(op), right(std::move(right)) {}
   void accept(ExprVisitor &v) const override { v.visit(*this); }
   Value *accept(CodegenVisitor &v) const override { return v.visit(*this); }
   Token op;
@@ -107,11 +113,28 @@ struct Binary : Expr {
 };
 
 struct Grouping : Expr {
-  explicit Grouping(std::unique_ptr<Expr> expression)
-      : expression(std::move(expression)) {}
+  explicit Grouping(std::unique_ptr<Expr> expression) : expression(std::move(expression)) {}
   void accept(ExprVisitor &v) const override { v.visit(*this); }
   Value *accept(CodegenVisitor &v) const override { return v.visit(*this); }
   std::unique_ptr<Expr> expression;
+};
+
+struct Assign : Expr {
+  explicit Assign(std::unique_ptr<Expr> lvalue, std::unique_ptr<Expr> rvalue)
+      : lvalue(std::move(lvalue)), rvalue(std::move(rvalue)) {}
+  void accept(ExprVisitor &v) const override { v.visit(*this); }
+  Value *accept(CodegenVisitor &v) const override { return v.visit(*this); }
+
+  std::unique_ptr<Expr> lvalue;
+  std::unique_ptr<Expr> rvalue;
+};
+
+struct Variable : Expr {
+  explicit Variable(Token name) : name(name) {};
+  void accept(ExprVisitor &v) const override { v.visit(*this); }
+  Value *accept(CodegenVisitor &v) const override { return v.visit(*this); }
+
+  Token name;
 };
 
 // --- Stmt ---
@@ -122,15 +145,13 @@ struct Stmt {
 };
 
 struct ExprStmt : Stmt {
-  ExprStmt(std::unique_ptr<Expr> expression)
-      : expression(std::move(expression)) {}
+  ExprStmt(std::unique_ptr<Expr> expression) : expression(std::move(expression)) {}
   void accept(StmtVisitor &v) const override { v.visit(*this); }
   std::unique_ptr<Expr> expression;
 };
 
 struct PrintStmt : Stmt {
-  PrintStmt(std::unique_ptr<Expr> expression)
-      : expression(std::move(expression)) {}
+  PrintStmt(std::unique_ptr<Expr> expression) : expression(std::move(expression)) {}
   void accept(StmtVisitor &v) const override { v.visit(*this); }
   std::unique_ptr<Expr> expression;
 };
@@ -153,11 +174,9 @@ struct PrintVisitor : ExprVisitor {
   void visit(const Literal &expr) override {
     std::visit(
         [this](const auto &v) {
-          if constexpr (std::is_same_v<std::decay_t<decltype(v)>,
-                                       std::nullptr_t>)
+          if constexpr (std::is_same_v<std::decay_t<decltype(v)>, std::nullptr_t>)
             os << "nil";
-          else if constexpr (std::is_same_v<std::decay_t<decltype(v)>,
-                                            std::string>)
+          else if constexpr (std::is_same_v<std::decay_t<decltype(v)>, std::string>)
             os << '"' << v << '"';
           else if constexpr (std::is_same_v<std::decay_t<decltype(v)>, bool>)
             os << (v ? "true" : "false");
@@ -186,6 +205,15 @@ struct PrintVisitor : ExprVisitor {
     expr.expression->accept(*this);
     os << ")";
   }
+
+  void visit(const Assign &expr) override {
+    os << "(= ";
+    expr.lvalue->accept(*this);
+    os << " ";
+    expr.rvalue->accept(*this);
+  }
+
+  void visit(const Variable &expr) override { os << "(" << expr.name.lexeme << ")"; }
 };
 
 #endif
