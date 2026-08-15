@@ -2,8 +2,8 @@
 title: Chunks of Bytecode
 kind: chapter
 part: III
-number: 13
-order: 16
+number: 14
+order: 17
 ---
 
 🚧 Under construction.

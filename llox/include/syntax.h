@@ -6,6 +6,7 @@
 #include <ostream>
 #include <string>
 #include <variant>
+#include <vector>
 
 /*
 
@@ -19,10 +20,12 @@ declaration    → varDecl
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → exprStmt
-               | printStmt ;
+               | printStmt
+               | block ;
 
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
+block          → "{" declaration* "}" ;
 
 expression     → assignment ;
 assignment     → IDENTIFIER "=" assignment
@@ -49,6 +52,7 @@ struct Variable;
 struct ExprStmt;
 struct PrintStmt;
 struct VarStmt;
+struct BlockStmt;
 
 // --- Visitors ---
 
@@ -76,6 +80,7 @@ struct StmtVisitor {
   virtual void visit(const ExprStmt &stmt) = 0;
   virtual void visit(const PrintStmt &stmt) = 0;
   virtual void visit(const VarStmt &stmt) = 0;
+  virtual void visit(const BlockStmt &stmt) = 0;
   virtual ~StmtVisitor() = default;
 };
 
@@ -163,6 +168,14 @@ struct VarStmt : Stmt {
 
   Token name;
   std::unique_ptr<Expr> initializer;
+};
+
+struct BlockStmt : Stmt {
+  explicit BlockStmt(std::vector<std::unique_ptr<Stmt>> statements)
+      : statements(std::move(statements)) {}
+  void accept(StmtVisitor &v) const override { v.visit(*this); }
+
+  std::vector<std::unique_ptr<Stmt>> statements;
 };
 
 // --- PrintVisitor ---

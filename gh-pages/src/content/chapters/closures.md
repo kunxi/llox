@@ -2,8 +2,8 @@
 title: Closures
 kind: chapter
 part: III
-number: 24
-order: 27
+number: 25
+order: 28
 ---
 
 🚧 Under construction.

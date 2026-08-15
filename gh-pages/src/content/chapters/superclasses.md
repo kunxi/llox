@@ -2,8 +2,8 @@
 title: Superclasses
 kind: chapter
 part: III
-number: 28
-order: 31
+number: 29
+order: 32
 ---
 
 🚧 Under construction.

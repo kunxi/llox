@@ -2,8 +2,8 @@
 title: Resolving and Binding
 kind: chapter
 part: II
-number: 10
-order: 12
+number: 11
+order: 13
 ---
 
 🚧 Under construction.

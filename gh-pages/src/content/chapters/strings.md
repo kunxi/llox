@@ -2,8 +2,8 @@
 title: Strings
 kind: chapter
 part: III
-number: 18
-order: 21
+number: 19
+order: 22
 ---
 
 🚧 Under construction.

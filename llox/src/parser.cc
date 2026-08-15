@@ -103,6 +103,9 @@ std::unique_ptr<Stmt> Parser::declaration() {
 std::unique_ptr<Stmt> Parser::statement() {
   if (match({TOKEN_PRINT}))
     return print_stmt();
+  if (match({TOKEN_LEFT_BRACE}))
+    return block_stmt();
+
   return expr_stmt();
 }
 
@@ -116,6 +119,17 @@ std::unique_ptr<Stmt> Parser::print_stmt() {
   auto expr = expression();
   consume(TOKEN_SEMICOLON, "Expect semicolon");
   return std::make_unique<PrintStmt>(std::move(expr));
+}
+
+std::unique_ptr<Stmt> Parser::block_stmt() {
+  std::vector<std::unique_ptr<Stmt>> statements;
+
+  while (!check(TOKEN_RIGHT_BRACE) && !ends()) {
+    statements.push_back(declaration());
+  }
+
+  consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
+  return std::make_unique<BlockStmt>(std::move(statements));
 }
 
 // Core function: tokenize and parse

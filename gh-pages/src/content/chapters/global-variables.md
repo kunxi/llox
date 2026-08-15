@@ -2,8 +2,8 @@
 title: Global Variables
 kind: chapter
 part: III
-number: 20
-order: 23
+number: 21
+order: 24
 ---
 
 🚧 Under construction.

@@ -7,10 +7,12 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
+#include <format>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 using Value = llvm::Value;
 
@@ -19,12 +21,15 @@ public:
   Interpreter()
       : context(std::make_unique<llvm::LLVMContext>()),
         module(std::make_unique<llvm::Module>("llox jit", *context)),
-        builder(std::make_unique<llvm::IRBuilder<>>(*context)), variables() {};
+        builder(std::make_unique<llvm::IRBuilder<>>(*context)) {
+    scopes.emplace_back();
+  }
 
   // StmtVisitor
   void visit(const ExprStmt &stmt) override;
   void visit(const PrintStmt &stmt) override;
   void visit(const VarStmt &stmt) override;
+  void visit(const BlockStmt &stmt) override;
 
   void execute(const std::vector<std::unique_ptr<Stmt>> &program);
 
@@ -41,6 +46,7 @@ public:
 
 private:
   llvm::FunctionCallee get_print_fn();
+
   template <typename... Args> Value *log_error_v(std::format_string<Args...> fmt, Args &&...args) {
     auto message = std::format(fmt, std::forward<Args>(args)...);
     std::cerr << message << "\n";
@@ -51,7 +57,7 @@ private:
   std::unique_ptr<llvm::Module> module;
   std::unique_ptr<llvm::IRBuilder<>> builder;
   std::unique_ptr<llvm::ExecutionEngine> engine;
-  std::map<std::string, Value *> variables;
+  std::vector<std::map<std::string, Value *>> scopes;
   std::string out;
 };
 

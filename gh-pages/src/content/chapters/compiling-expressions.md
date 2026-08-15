@@ -2,8 +2,8 @@
 title: Compiling Expressions
 kind: chapter
 part: III
-number: 16
-order: 19
+number: 17
+order: 20
 ---
 
 🚧 Under construction.

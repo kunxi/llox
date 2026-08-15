@@ -2,8 +2,8 @@
 title: Types of Values
 kind: chapter
 part: III
-number: 17
-order: 20
+number: 18
+order: 21
 ---
 
 🚧 Under construction.
