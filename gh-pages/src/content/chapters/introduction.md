@@ -6,29 +6,28 @@ number: 1
 order: 2
 ---
 
-Welcome to llox! This document is a companion document for me to study
-[Crafting Interpreters](https://craftinginterpreters.com/), though I would
-build the interpreters with LLVM backend.
+Welcome to llox! This document tracks my study of the book,
+[Crafting Interpreters](https://craftinginterpreters.com/).
+I diverged from the craftsmanship to adopting the LLVM backend,
+and Cranelift JIT.
 
-For the bytecode virtual machine, I might use Cranelift JIT.
 
-## What You'll Build
+## What we'll Build
 
-Over the course of this book, you'll build three complete implementations of
+Over the course of this document, we'll build two complete implementations of
 Lox:
 
-1. **llox** — A tree-walk interpreter in C++, focused on simplicity and
+1. **llox** — A tree-walk interpreter and compiler in C++, focused on simplicity and
    correctness.
-2. **lloxc** — A compiler in C++ to generate lox bytecode chunks.
 3. **clox** — A bytecode virtual machine in rust, focused on performance and
    low-level implementation details.
 
 ## Why Lox?
 
-Lox is a small, dynamically-typed scripting language. Its syntax is familiar
-if you've used JavaScript, Python, or Ruby. The language is small enough to
-implement fully, but rich enough to explore the most interesting corners of
-language design:
+Lox is a small, dynamically-typed scripting language designed by Robert Nystrom.
+Its syntax is similar to JavaScript and Python. 
+The language is small enough to implement fully, but rich enough to explore
+the most interesting corners of language design:
 
 ```javascript
 // A taste of Lox
@@ -56,7 +55,7 @@ Each chapter builds on the previous one. The chapters are grouped into three
 parts:
 
 - **Part I** introduces the Lox language and gives you the landscape.
-- **Part II** walks through building llox and lloxc.
+- **Part II** walks through building llox.
 - **Part III** takes you through clox, the bytecode virtual machine.
 
 Code along as you read. The best way to understand an interpreter is to build one.

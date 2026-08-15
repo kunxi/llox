@@ -5,4 +5,6 @@ partNumber: II
 order: 4
 ---
 
-Building jlox, a tree-walk interpreter for Lox.
+In this section, we will build llox with LLVM backend.
+We will build an interpreter for a subset of language with *obvious bugs*,
+so we can test it quickly. We would iterate it for continuous improvement.

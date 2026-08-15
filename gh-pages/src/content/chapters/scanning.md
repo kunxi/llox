@@ -29,10 +29,10 @@ The scanner produces these tokens:
 ## Using Flex
 
 The first step in any interpreter is **scanning** (also called _lexing_).
-Instead of crafting the lexer by scanning characters, we use [flex].
+We can use the off-shelf lexer, such as [flex].
 
-First, we need to define a `lexer.l`, it uses the regular expression
-for pattern matching, and the order matters as it defines the precedence:
+First, define a `lexer.l`, it uses the regular expression
+for pattern matching, **the order matters** as it defines the precedence:
 
 ```
 %{
@@ -53,9 +53,9 @@ for pattern matching, and the order matters as it defines the precedence:
 ([0-9]+\.?[0-9]*)           { return TOKEN_NUMBER; }
 ```
 
-It is worthy noting that pattern uses regular expression,
-so the special characters _must_ be escaped. For numbers,
-we support `3`, `3.14`, `0.5`, but _not_ `.5` or `3.`.
+Note: the parentheses has to be escaped due to its special meaning
+in the regular expression.
+For numbers, we support `3`, `3.14`, `0.5`, but _not_ `.5` or `3.`.
 
 The `lexer.l` is compiled by the _flex_ to generate `lexer.cpp`:
 
@@ -75,6 +75,20 @@ set(SOURCES
 )
 add_executable(llox ${SOURCES})
 target_include_directories(llox PRIVATE include/)
+```
+
+We can dump the token for verification, see [PR #4](https://github.com/kunxi/llox/pull/4)
+for more details.
+
+```cpp
+void run(std::istream &stream, std::ostream &out) {
+  FlexLexer *lexer = new yyFlexLexer(&stream);
+  int token;
+  while ((token = lexer->yylex()) != TOKEN_EOF) {
+    out << "Token ID: " << token << " | Matched: [" << lexer->YYText() << "]"
+        << " | Length: " << lexer->YYLeng() << "\n";
+  }
+}
 ```
 
 [flex]: https://github.com/westes/flex
