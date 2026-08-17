@@ -2,8 +2,8 @@
 title: Inheritance
 kind: chapter
 part: II
-number: 12
-order: 14
+number: 13
+order: 15
 ---
 
 🚧 Under construction.

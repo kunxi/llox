@@ -2,8 +2,8 @@
 title: Classes and Instances
 kind: chapter
 part: III
-number: 26
-order: 29
+number: 27
+order: 30
 ---
 
 🚧 Under construction.

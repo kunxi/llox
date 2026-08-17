@@ -2,8 +2,8 @@
 title: Local Variables
 kind: chapter
 part: III
-number: 21
-order: 24
+number: 22
+order: 25
 ---
 
 🚧 Under construction.

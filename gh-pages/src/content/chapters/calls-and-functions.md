@@ -2,8 +2,8 @@
 title: Calls and Functions
 kind: chapter
 part: III
-number: 23
-order: 26
+number: 24
+order: 27
 ---
 
 🚧 Under construction.

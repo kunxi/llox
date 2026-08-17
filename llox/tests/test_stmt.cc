@@ -80,11 +80,35 @@ static void test_expr_stmt() {
   PASS();
 }
 
+static void test_block() {
+  TEST(block_assign_outer);
+  assert(run_script("var a = 1; { a = 5; } print a;") == "5\n");
+  PASS();
+
+  TEST(block_shadow_assign);
+  assert(run_script("var a = 1; { var a = 2; a = 3; print a; } print a;") == "3\n1\n");
+  PASS();
+
+  TEST(block_scope_does_not_leak);
+  assert(run_script("var a = 1; { var a = 2; print a; } print a;") == "2\n1\n");
+  PASS();
+
+  TEST(block_nested_assignment);
+  assert(run_script("var a = 1; { var b = 2; { b = 20; print b; } print b; } print a;") ==
+         "20\n20\n1\n");
+  PASS();
+
+  TEST(block_empty);
+  assert(run_script("print 1; {} print 2;") == "1\n2\n");
+  PASS();
+}
+
 int main() {
   std::cout << "Running statement tests...\n";
   test_print();
   test_var();
   test_expr_stmt();
+  test_block();
   std::cout << "\nAll " << tests << " tests passed.\n";
   return 0;
 }

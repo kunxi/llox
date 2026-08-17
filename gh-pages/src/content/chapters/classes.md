@@ -2,8 +2,8 @@
 title: Classes
 kind: chapter
 part: II
-number: 11
-order: 13
+number: 12
+order: 14
 ---
 
 🚧 Under construction.

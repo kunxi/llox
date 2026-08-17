@@ -2,8 +2,8 @@
 title: Functions
 kind: chapter
 part: II
-number: 9
-order: 11
+number: 10
+order: 12
 ---
 
 🚧 Under construction.

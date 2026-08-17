@@ -2,8 +2,8 @@
 title: Garbage Collection
 kind: chapter
 part: III
-number: 25
-order: 28
+number: 26
+order: 29
 ---
 
 🚧 Under construction.

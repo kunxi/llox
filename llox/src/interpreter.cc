@@ -48,6 +48,9 @@ void Interpreter::execute(const std::vector<std::unique_ptr<Stmt>> &program) {
     std::cerr << "EngineBuilder failed: " << err << "\n";
     return;
   }
+  // Make the host `llox_print` symbol resolvable by the JIT'd code.
+  engine->addGlobalMapping("llox_print",
+                           reinterpret_cast<uint64_t>(&llox_print));
   engine->runFunction(engine->FindFunctionNamed("__main"), {});
 
   engine.reset();
@@ -75,8 +78,18 @@ void Interpreter::visit(const VarStmt &stmt) {
     val = stmt.initializer->accept(*this);
   }
 
-  // Resolve to assign expr.
-  variables.insert({stmt.name.lexeme, val});
+  // Declare the variable in the current scope. `operator[]` overwrites an
+  // existing binding so an inner declaration shadows an outer one.
+  scopes.back()[stmt.name.lexeme] = val;
+}
+
+void Interpreter::visit(const BlockStmt &stmt) {
+  // Push a fresh scope for the block, then pop it when the block ends.
+  scopes.emplace_back();
+  for (const auto &statement : stmt.statements) {
+    statement->accept(*this);
+  }
+  scopes.pop_back();
 }
 
 Value *Interpreter::visit(const Literal &literal) {
@@ -131,20 +144,30 @@ Value *Interpreter::visit(const Assign &assign) {
   auto lval = dynamic_cast<Variable *>(assign.lvalue.get());
   if (lval != nullptr) {
     auto name = lval->name.lexeme;
-    auto it = variables.find(name);
-    if (it == variables.end()) {
-      return log_error_v("name is not declared");
+    // Resolve from the innermost scope outward.
+    for (auto it = scopes.rbegin(); it != scopes.rend(); ++it) {
+      auto found = it->find(name);
+      if (found != it->end()) {
+        auto rval = assign.rvalue->accept(*this);
+        found->second = rval;
+        return rval;
+      }
     }
-    auto rval = assign.rvalue->accept(*this);
-    it->second = rval;
-    return rval;
+    return log_error_v("name is not declared");
   }
   throw std::runtime_error("Cannot assign to lvalue");
 }
 
 Value *Interpreter::visit(const Variable &variable) {
-  Value *val = variables.at(variable.name.lexeme);
-  return val;
+  const auto &name = variable.name.lexeme;
+  // Resolve from the innermost scope outward.
+  for (auto it = scopes.rbegin(); it != scopes.rend(); ++it) {
+    auto found = it->find(name);
+    if (found != it->end()) {
+      return found->second;
+    }
+  }
+  return log_error_v("name is not declared");
 }
 
 llvm::FunctionCallee Interpreter::get_print_fn() {
