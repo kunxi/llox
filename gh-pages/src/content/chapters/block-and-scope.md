@@ -6,10 +6,10 @@ number: 8
 order: 10
 ---
 
-Every variable we have defined so far lives in one flat, global
+Every variable we have defined so far live in one flat, global
 namespace — the `variables` map in `Interpreter`.
-In this chapter we introduce _blocks_ and _lexical scope_, so a
-variable will be resolved for the scope.
+In this chapter we introduce the concept _block_, which
+defines the accessibility of the variables.
 
 ## Block syntax
 
@@ -23,9 +23,7 @@ statement      → exprStmt
 block          → "{" declaration* "}" ;
 ```
 
-The lexer already emits `TOKEN_LEFT_BRACE` and `TOKEN_RIGHT_BRACE`,
-so only the parser gains a new rule. The syntax tree gets a
-`BlockStmt` node holding a list of statements:
+The syntax tree gets a `BlockStmt` holding a list of statements:
 
 ```cpp
 struct BlockStmt : Stmt {
@@ -37,87 +35,64 @@ struct BlockStmt : Stmt {
 };
 ```
 
-`Parser::statement()` is extended to dispatch to a new `block()`
+`Parser::statement()` is extended to dispatch to a new `block_stmt()`
 method, which keeps parsing declarations until the closing brace:
 
 ```cpp
-std::unique_ptr<Stmt> Parser::block() {
+std::unique_ptr<Stmt> Parser::block_stmt() {
   std::vector<std::unique_ptr<Stmt>> statements;
-  while (!check(TOKEN_RIGHT_BRACE) && !ends())
+
+  while (!check(TOKEN_RIGHT_BRACE) && !ends()) {
     statements.push_back(declaration());
+  }
+
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
   return std::make_unique<BlockStmt>(std::move(statements));
 }
 ```
 
-## Environments
+## Scopes
 
-A block is only useful if a variable declared inside it stays
-inside it. The flat `std::map<std::string, Value *> variables` in
-`Interpreter` cannot express that, so we replace it with an
-`Environment` — a scope holding a map of names plus a pointer to
-the scope that encloses it:
+A block defines a _scope_ for the variables. A variable defined
+inside the scope is no longer accessible once the code execution
+leaves the scope. The inner variable can hide the outer one inside
+the scope, aka [variable shadowing](https://en.wikipedia.org/wiki/Variable_shadowing). We will replace the flat `variables` with
+`scopes`:
 
 ```cpp
-class Environment {
-public:
-  explicit Environment(std::shared_ptr<Environment> enclosing = nullptr)
-      : enclosing(std::move(enclosing)) {}
-
-  void define(const std::string &name, Value *value) {
-    values[name] = value;
-  }
-
-  Value *get(const std::string &name);
-  void assign(const std::string &name, Value *value);
-
-private:
-  std::map<std::string, Value *> values;
-  std::shared_ptr<Environment> enclosing;
-};
+std::vector<std::map<std::string, Value *>> scopes;
 ```
 
-The rules are the heart of lexical scoping:
-
-- `define` always writes into the _current_ environment.
-- `get` and `assign` first look in the current environment, then
-  walk up through the enclosing chain.
-
-In other words, a declaration is visible in its own block and in
-every block nested inside it, but never outside.
-
-## Visiting a block
-
-`Interpreter` keeps a pointer to the _current_ environment. Visiting
-a block executes its statements against a fresh, nested environment,
-then restores the previous one:
+When visiting a block, the statements are evaluated against a fresh scope
+appended to the `scopes`, then popped to restore the previous one.
 
 ```cpp
 void Interpreter::visit(const BlockStmt &stmt) {
-  auto previous = environment;
-  environment = std::make_shared<Environment>(previous);
-  for (const auto &statement : stmt.statements)
+  // Push a fresh scope for the block, then pop it when the block ends.
+  scopes.emplace_back();
+  for (const auto &statement : stmt.statements) {
     statement->accept(*this);
-  environment = previous;
+  }
+  scopes.pop_back();
 }
 ```
 
-`visit(VarStmt)` switches from inserting into `variables` to calling
-`environment->define`, while `visit(Variable)` and `visit(Assign)`
-call `environment->get` and `environment->assign`.
+Variable declaration always writes to the current scope, while
+assignment and reference first look in the current scope, then
+walk upwards through the scopes.
 
-## Shadowing
+```cpp
+// Resolve from the innermost scope outward.
+for (auto it = scopes.rbegin(); it != scopes.rend(); ++it) {
+  auto found = it->find(name);
+  if (found != it->end()) {
+    auto rval = assign.rvalue->accept(*this);
+    found->second = rval;
+    return rval;
+  }
+}
 
-Because `define` targets the innermost environment, an inner block
-can redeclare a name from an outer block. The inner binding
-_shadows_ the outer one for the rest of the block:
-
+return log_error_v("name is not declared");
 ```
-> var a = 1; { var a = 2; print a; } print a;
-2
-1
-```
 
-The block becomes a private workspace: names declared inside it do
-not leak out, and assigning to an outer name still reaches it, as
-long as no inner binding shadows it first.
+See [PR #15](https://github.com/kunxi/llox/pull/15) for details.
