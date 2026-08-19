@@ -49,8 +49,7 @@ void Interpreter::execute(const std::vector<std::unique_ptr<Stmt>> &program) {
     return;
   }
   // Make the host `llox_print` symbol resolvable by the JIT'd code.
-  engine->addGlobalMapping("llox_print",
-                           reinterpret_cast<uint64_t>(&llox_print));
+  engine->addGlobalMapping("llox_print", reinterpret_cast<uint64_t>(&llox_print));
   engine->runFunction(engine->FindFunctionNamed("__main"), {});
 
   engine.reset();
@@ -92,6 +91,78 @@ void Interpreter::visit(const BlockStmt &stmt) {
   scopes.pop_back();
 }
 
+void Interpreter::visit(const IfStmt &stmt) {
+  Value *condition = stmt.condition->accept(*this);
+  if (!condition)
+    return;
+
+  // Comparison expressions already yield i1; numeric values need truthiness
+  // conversion (nonzero => true).
+  if (!condition->getType()->isIntegerTy(1))
+    condition =
+        builder->CreateFCmpONE(condition, ConstantFP::get(*context, APFloat(0.0)), "ifcond");
+
+  Function *function = builder->GetInsertBlock()->getParent();
+  BasicBlock *then_bb = BasicBlock::Create(*context, "then", function);
+  BasicBlock *else_bb = BasicBlock::Create(*context, "else");
+  BasicBlock *merge_bb = BasicBlock::Create(*context, "ifcont");
+
+  builder->CreateCondBr(condition, then_bb, else_bb);
+
+  // Each branch mutates its own copy of the scope stack; the copies are
+  // phi-merged back together in the merge block.
+  auto base = scopes;
+
+  // Then branch.
+  builder->SetInsertPoint(then_bb);
+  scopes = base;
+  stmt.then_branch->accept(*this);
+  auto then_scopes = scopes;
+  builder->CreateBr(merge_bb);
+  BasicBlock *then_pred = builder->GetInsertBlock();
+
+  // Else branch (empty when there is no `else`).
+  function->insert(function->end(), else_bb);
+  builder->SetInsertPoint(else_bb);
+  scopes = base;
+  if (stmt.else_branch)
+    stmt.else_branch->accept(*this);
+  auto else_scopes = scopes;
+  builder->CreateBr(merge_bb);
+  BasicBlock *else_pred = builder->GetInsertBlock();
+
+  // Merge block.
+  function->insert(function->end(), merge_bb);
+  builder->SetInsertPoint(merge_bb);
+  scopes = merge_scopes(base, then_scopes, else_scopes, then_pred, else_pred);
+}
+
+Interpreter::ScopeStack Interpreter::merge_scopes(const ScopeStack &base,
+                                                  const ScopeStack &then_scopes,
+                                                  const ScopeStack &else_scopes,
+                                                  BasicBlock *then_pred, BasicBlock *else_pred) {
+  ScopeStack merged = base;
+  auto *fty = llvm::Type::getDoubleTy(*context);
+
+  for (size_t i = 0; i < base.size(); ++i) {
+    for (const auto &kv : base[i]) {
+      const std::string &name = kv.first;
+      Value *then_val = then_scopes[i].at(name);
+      Value *else_val = else_scopes[i].at(name);
+      if (then_val == else_val)
+        continue; // unchanged in both branches; base value already dominates the join
+
+      PHINode *phi = builder->CreatePHI(fty, 2, name);
+      phi->addIncoming(then_val, then_pred);
+      phi->addIncoming(else_val, else_pred);
+      merged[i][name] = phi;
+    }
+  }
+
+  return merged;
+}
+
+// CodegenVisitor
 Value *Interpreter::visit(const Literal &literal) {
   if (auto pval = std::get_if<double>(&literal.value)) {
     return ConstantFP::get(*context, APFloat(*pval));
@@ -130,6 +201,12 @@ Value *Interpreter::visit(const Binary &binary) {
     return builder->CreateFMul(L, R, "multmp");
   case TOKEN_LESS:
     return builder->CreateFCmpULT(L, R, "cmptmp");
+  case TOKEN_LESS_EQUAL:
+    return builder->CreateFCmpULE(L, R, "cmptmp");
+  case TOKEN_GREATER:
+    return builder->CreateFCmpUGT(L, R, "cmptmp");
+  case TOKEN_GREATER_EQUAL:
+    return builder->CreateFCmpUGE(L, R, "cmptmp");
   default:
     return log_error_v("Invalid binary operator: {}", binary.op.lexeme);
   }

@@ -28,6 +28,7 @@ public:
   std::unique_ptr<Stmt> expr_stmt();
   std::unique_ptr<Stmt> print_stmt();
   std::unique_ptr<Stmt> block_stmt();
+  std::unique_ptr<Stmt> if_stmt();
 
   // core functions
   void tokenize(std::istream &stream);

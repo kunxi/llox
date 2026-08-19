@@ -105,6 +105,8 @@ std::unique_ptr<Stmt> Parser::statement() {
     return print_stmt();
   if (match({TOKEN_LEFT_BRACE}))
     return block_stmt();
+  if (match({TOKEN_IF}))
+    return if_stmt();
 
   return expr_stmt();
 }
@@ -130,6 +132,20 @@ std::unique_ptr<Stmt> Parser::block_stmt() {
 
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
   return std::make_unique<BlockStmt>(std::move(statements));
+}
+
+std::unique_ptr<Stmt> Parser::if_stmt() {
+  consume(TOKEN_LEFT_PAREN, "Expect '(' after `if`.");
+  auto condition = expression();
+  consume(TOKEN_RIGHT_PAREN, "Expect ')' after `if` condition.");
+
+  auto then_branch = statement();
+  std::unique_ptr<Stmt> else_branch = nullptr;
+  if (match({TOKEN_ELSE})) {
+    else_branch = statement();
+  }
+  return std::make_unique<IfStmt>(std::move(condition), std::move(then_branch),
+                                  std::move(else_branch));
 }
 
 // Core function: tokenize and parse

@@ -30,6 +30,7 @@ public:
   void visit(const PrintStmt &stmt) override;
   void visit(const VarStmt &stmt) override;
   void visit(const BlockStmt &stmt) override;
+  void visit(const IfStmt &stmt) override;
 
   void execute(const std::vector<std::unique_ptr<Stmt>> &program);
 
@@ -45,7 +46,15 @@ public:
   Value *visit(const Variable &expr) override;
 
 private:
+  using Scope = std::map<std::string, Value *>;
+  using ScopeStack = std::vector<Scope>;
+
   llvm::FunctionCallee get_print_fn();
+
+  // Phi-merge the two branch scope-stack copies back into one stack at the join.
+  ScopeStack merge_scopes(const ScopeStack &base, const ScopeStack &then_scopes,
+                          const ScopeStack &else_scopes, llvm::BasicBlock *then_pred,
+                          llvm::BasicBlock *else_pred);
 
   template <typename... Args> Value *log_error_v(std::format_string<Args...> fmt, Args &&...args) {
     auto message = std::format(fmt, std::forward<Args>(args)...);
@@ -57,7 +66,7 @@ private:
   std::unique_ptr<llvm::Module> module;
   std::unique_ptr<llvm::IRBuilder<>> builder;
   std::unique_ptr<llvm::ExecutionEngine> engine;
-  std::vector<std::map<std::string, Value *>> scopes;
+  ScopeStack scopes;
   std::string out;
 };
 
