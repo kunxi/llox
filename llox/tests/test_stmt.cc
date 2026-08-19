@@ -80,6 +80,40 @@ static void test_expr_stmt() {
   PASS();
 }
 
+static void test_if() {
+  TEST(if_true_then);
+  assert(run_script("if (true) print 1; else print 2;") == "1\n");
+  PASS();
+  TEST(if_false_else);
+  assert(run_script("if (false) print 1; else print 2;") == "2\n");
+  PASS();
+  TEST(if_assign_then);
+  assert(run_script("var x = 0; if (x < 5) x = 1; else x = 2; print x;") == "1\n");
+  PASS();
+  TEST(if_assign_else);
+  assert(run_script("var x = 10; if (x < 5) x = 1; else x = 2; print x;") == "2\n");
+  PASS();
+  TEST(if_no_else_taken);
+  assert(run_script("var x = 0; if (x < 5) x = 100; print x;") == "100\n");
+  PASS();
+  TEST(if_no_else_skipped);
+  assert(run_script("var x = 0; if (x < 0) x = 100; print x;") == "0\n");
+  PASS();
+  TEST(if_phi_arithmetic);
+  assert(run_script("var x = 0; if (x < 5) x = x + 1; else x = x + 10; print x;") == "1\n");
+  PASS();
+  TEST(if_nested);
+  assert(run_script("var x = 3; if (x < 5) { if (x < 1) print 0; else print 1; } else print 2;") ==
+         "1\n");
+  PASS();
+  TEST(if_assign_outer_scope);
+  assert(run_script("var x = 0; { if (true) x = 1; else x = 2; print x; } print x;") == "1\n1\n");
+  PASS();
+  TEST(if_assign_outer_scope_else);
+  assert(run_script("var x = 0; { if (false) x = 1; else x = 2; print x; } print x;") == "2\n2\n");
+  PASS();
+}
+
 static void test_block() {
   TEST(block_assign_outer);
   assert(run_script("var a = 1; { a = 5; } print a;") == "5\n");
@@ -108,6 +142,7 @@ int main() {
   test_print();
   test_var();
   test_expr_stmt();
+  test_if();
   test_block();
   std::cout << "\nAll " << tests << " tests passed.\n";
   return 0;

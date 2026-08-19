@@ -20,8 +20,14 @@ declaration    → varDecl
 varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → exprStmt
+               | ifStmt
                | printStmt
                | block ;
+
+
+ifStmt         → "if" "(" expression ")" statement
+               ( "else" statement )? ;
+
 
 exprStmt       → expression ";" ;
 printStmt      → "print" expression ";" ;
@@ -53,6 +59,7 @@ struct ExprStmt;
 struct PrintStmt;
 struct VarStmt;
 struct BlockStmt;
+struct IfStmt;
 
 // --- Visitors ---
 
@@ -81,6 +88,7 @@ struct StmtVisitor {
   virtual void visit(const PrintStmt &stmt) = 0;
   virtual void visit(const VarStmt &stmt) = 0;
   virtual void visit(const BlockStmt &stmt) = 0;
+  virtual void visit(const IfStmt &stmt) = 0;
   virtual ~StmtVisitor() = default;
 };
 
@@ -176,6 +184,18 @@ struct BlockStmt : Stmt {
   void accept(StmtVisitor &v) const override { v.visit(*this); }
 
   std::vector<std::unique_ptr<Stmt>> statements;
+};
+
+struct IfStmt : Stmt {
+  explicit IfStmt(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> then_branch,
+                  std::unique_ptr<Stmt> else_branch)
+      : condition(std::move(condition)), then_branch(std::move(then_branch)),
+        else_branch(std::move(else_branch)) {}
+  void accept(StmtVisitor &v) const override { v.visit(*this); }
+
+  std::unique_ptr<Expr> condition;
+  std::unique_ptr<Stmt> then_branch;
+  std::unique_ptr<Stmt> else_branch;
 };
 
 // --- PrintVisitor ---
